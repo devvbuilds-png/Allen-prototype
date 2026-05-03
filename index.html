@@ -1177,18 +1177,17 @@
 
   /* Modal slides */
   .modal-slides {
-    display: flex;
-    overflow-x: hidden;
+    position: relative;
     width: 100%;
-    transition: transform 0.3s ease;
   }
   .modal-slide {
-    min-width: 100%;
+    display: none;
+    width: 100%;
     padding: 0 24px 24px;
   }
+  .modal-slide.active { display: block; }
   .modal-slide-final {
-    display: flex;
-    flex-direction: column;
+    min-height: 0;
   }
 
   .modal-slide-dots {
@@ -1793,7 +1792,7 @@
       
       <div class="modal-slides" id="modal-slides-container">
         <!-- Slide 1: Modes intro -->
-        <div class="modal-slide">
+        <div class="modal-slide active" id="modes-slide-0">
           <div class="modes-intro-title">Meet your learning modes ✨</div>
           <div class="modes-intro-sub">Allie adapts to how you learn best. Here's what each mode does:</div>
           
@@ -1832,7 +1831,7 @@
         </div>
         
         <!-- Slide 2: Your mode -->
-        <div class="modal-slide modal-slide-final">
+        <div class="modal-slide modal-slide-final" id="modes-slide-1">
           <div class="your-mode-header">
             <h3>Your mode is ready 🎯</h3>
             <p>Based on your profile score, Allie recommends:</p>
@@ -2300,20 +2299,28 @@ function showModesModal() {
   document.getElementById('modal-mode-name').textContent = `${state.persona} Mode`;
   document.getElementById('modal-mode-desc').textContent = MODES[state.suggestedMode].desc;
   document.getElementById('modal-style-chip').textContent = `${state.learningStyle} learner`;
+  updateModalSlides();
   updateModalDots();
   document.getElementById('modes-modal').classList.remove('hidden');
 }
 
 function nextModalSlide() {
   state.modalSlide = 1;
-  document.getElementById('modal-slides-container').style.transform = 'translateX(-50%)';
+  updateModalSlides();
   updateModalDots();
 }
 
 function prevModalSlide() {
   state.modalSlide = 0;
-  document.getElementById('modal-slides-container').style.transform = 'translateX(0)';
+  updateModalSlides();
   updateModalDots();
+}
+
+function updateModalSlides() {
+  const slide0 = document.getElementById('modes-slide-0');
+  const slide1 = document.getElementById('modes-slide-1');
+  slide0.classList.toggle('active', state.modalSlide === 0);
+  slide1.classList.toggle('active', state.modalSlide === 1);
 }
 
 function updateModalDots() {
