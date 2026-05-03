@@ -1,0 +1,2459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ALLEN – AI Doubt Solver</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  :root {
+    --allen-blue: #1A5FBB;
+    --allen-blue-light: #2196F3;
+    --allen-blue-bg: #EEF2F8;
+    --allen-blue-mid: #4A90D9;
+    --allen-yellow: #FFD600;
+    --allen-green: #00B96B;
+    --text-primary: #1A1A2E;
+    --text-secondary: #6B7280;
+    --text-light: #9CA3AF;
+    --white: #FFFFFF;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --card-radius: 16px;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Nunito', sans-serif;
+    background: #1A1A2E;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Phone shell for desktop */
+  #app-shell {
+    width: 393px;
+    height: 852px;
+    background: var(--allen-blue-bg);
+    position: relative;
+    overflow: hidden;
+    border-radius: 40px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  }
+
+  @media (max-width: 430px) {
+    html, body { background: var(--allen-blue-bg); align-items: flex-start; }
+    #app-shell { width: 100%; height: 100dvh; border-radius: 0; box-shadow: none; }
+  }
+
+  /* ─── SCREENS ─── */
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    background: var(--allen-blue-bg);
+    overflow: hidden;
+  }
+  .screen.active { display: flex; }
+
+  /* ─── STATUS BAR ─── */
+  .status-bar {
+    height: 44px;
+    padding: 10px 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .status-bar.dark { color: var(--white); }
+  .status-bar.light { color: var(--text-primary); }
+  .status-icons { display: flex; align-items: center; gap: 4px; font-size: 11px; }
+
+  /* ─── BOTTOM NAV ─── */
+  .bottom-nav {
+    height: 72px;
+    background: var(--white);
+    border-top: 1px solid #E5E7EB;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding-bottom: 8px;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 12px;
+    transition: all 0.2s;
+  }
+  .nav-item .nav-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-light);
+  }
+  .nav-item.active .nav-label { color: var(--allen-blue); }
+  .nav-icon {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-icon svg { width: 22px; height: 22px; }
+
+  /* Home nav icon - Allen A */
+  .allen-a {
+    width: 28px;
+    height: 28px;
+    background: var(--allen-blue);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 900;
+    font-size: 15px;
+  }
+  .nav-item:not(.active) .allen-a {
+    background: transparent;
+    border: 1.5px solid #D1D5DB;
+    color: #9CA3AF;
+  }
+
+  /* ─── SCREEN 1: INFO ENTRY ─── */
+  #screen-info {
+    background: linear-gradient(160deg, #4A90D9 0%, #87BBEF 40%, var(--allen-blue-bg) 70%);
+  }
+  .info-header {
+    padding: 20px 24px 0;
+    flex-shrink: 0;
+  }
+  .allen-logo-text {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+  }
+  .allen-logo-text span:first-child { color: var(--white); }
+  .allen-logo-text span:last-child { color: var(--allen-yellow); }
+  .info-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .info-welcome {
+    color: white;
+    margin-bottom: 28px;
+  }
+  .info-welcome h1 {
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .info-welcome p { font-size: 14px; opacity: 0.85; font-weight: 500; }
+
+  .info-form-card {
+    background: white;
+    border-radius: var(--card-radius);
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-input {
+    height: 48px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-size: 15px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s;
+    background: #FAFAFA;
+  }
+  .form-input:focus { border-color: var(--allen-blue-light); background: white; }
+  .form-select {
+    height: 48px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-size: 15px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+    color: var(--text-primary);
+    outline: none;
+    background: #FAFAFA url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 14px center;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+  .form-select:focus { border-color: var(--allen-blue-light); }
+
+  .class-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .class-chip {
+    height: 44px;
+    border-radius: 12px;
+    border: 1.5px solid #E5E7EB;
+    background: #FAFAFA;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .class-chip.selected {
+    border-color: var(--allen-blue);
+    background: #EEF4FF;
+    color: var(--allen-blue);
+  }
+
+  .target-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .target-chip {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1.5px solid #E5E7EB;
+    background: #FAFAFA;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .target-chip.selected {
+    border-color: var(--allen-blue);
+    background: #EEF4FF;
+    color: var(--allen-blue);
+  }
+
+  .btn-primary {
+    height: 52px;
+    background: var(--allen-blue);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ─── SCREEN 2: ONBOARDING QUIZ ─── */
+  #screen-quiz {
+    background: var(--allen-blue-bg);
+  }
+
+  .quiz-header-gradient {
+    background: linear-gradient(160deg, #1A5FBB 0%, #4A90D9 100%);
+    padding: 16px 24px 28px;
+    flex-shrink: 0;
+  }
+  .quiz-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .quiz-back-btn {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+  }
+  .quiz-step-badge {
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+  }
+
+  /* Welcome screen */
+  #quiz-welcome {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    text-align: center;
+    gap: 20px;
+  }
+  .welcome-mascot {
+    width: 100px;
+    height: 100px;
+    position: relative;
+  }
+  .allie-blob {
+    width: 100%;
+    height: 100%;
+    border-radius: 50% 45% 55% 40% / 40% 55% 45% 60%;
+    background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.95) 0%, rgba(180,220,255,0.8) 50%, rgba(150,200,250,0.6) 100%);
+    box-shadow: 0 0 30px rgba(100,180,255,0.5), 0 0 60px rgba(100,150,255,0.3);
+    animation: blobFloat 3s ease-in-out infinite, blobMorph 6s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  @keyframes blobFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes blobMorph {
+    0%, 100% { border-radius: 50% 45% 55% 40% / 40% 55% 45% 60%; }
+    33% { border-radius: 45% 55% 40% 60% / 55% 40% 60% 45%; }
+    66% { border-radius: 55% 40% 60% 45% / 45% 60% 40% 55%; }
+  }
+  .allie-face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-top: -4px;
+  }
+  .allie-eyes {
+    display: flex;
+    gap: 10px;
+  }
+  .allie-eye {
+    width: 9px;
+    height: 11px;
+    background: #1A3A6B;
+    border-radius: 50%;
+    animation: blink 4s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 45%, 55%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(0.1); }
+  }
+  .allie-smile {
+    width: 16px;
+    height: 8px;
+    border-bottom: 2.5px solid #1A3A6B;
+    border-left: 1.5px solid #1A3A6B;
+    border-right: 1.5px solid #1A3A6B;
+    border-radius: 0 0 8px 8px;
+  }
+  .welcome-text h2 {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+  .welcome-text p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-weight: 500;
+  }
+  .welcome-info-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .info-pill {
+    background: white;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .info-pill span { font-size: 14px; }
+
+  /* Quiz question UI */
+  #quiz-questions {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .quiz-progress-fill {
+    height: 100%;
+    background: var(--allen-yellow);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .question-card {
+    background: white;
+    border-radius: var(--card-radius);
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+  }
+  .q-number {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--allen-blue-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .q-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .q-subject-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #EEF4FF;
+    color: var(--allen-blue);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .options-list { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 12px;
+    background: #FAFAFA;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .option-label {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: #EEF2F8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+  .option-btn.selected {
+    border-color: var(--allen-blue);
+    background: #EEF4FF;
+  }
+  .option-btn.selected .option-label {
+    background: var(--allen-blue);
+    color: white;
+  }
+  .option-btn.correct {
+    border-color: var(--allen-green);
+    background: #E8FFF5;
+  }
+  .option-btn.correct .option-label { background: var(--allen-green); color: white; }
+  .option-btn.wrong {
+    border-color: #EF4444;
+    background: #FFF0F0;
+  }
+  .option-btn.wrong .option-label { background: #EF4444; color: white; }
+
+  .quiz-nav {
+    padding: 16px 20px;
+    display: flex;
+    gap: 10px;
+    background: var(--allen-blue-bg);
+    flex-shrink: 0;
+  }
+
+  /* Score screen */
+  #quiz-score {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+    gap: 20px;
+    overflow-y: auto;
+  }
+  .score-circle-wrap {
+    width: 140px;
+    height: 140px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .score-circle-bg {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 8px 32px rgba(26,95,187,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-number {
+    font-size: 40px;
+    font-weight: 900;
+    color: var(--allen-blue);
+    line-height: 1;
+  }
+  .score-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+  .score-ring {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: conic-gradient(var(--allen-blue) 0deg, var(--allen-blue) var(--score-deg, 0deg), #E5E7EB var(--score-deg, 0deg));
+    z-index: -1;
+    animation: ringFill 1.2s ease-out forwards;
+  }
+
+  .persona-card {
+    width: 100%;
+    background: white;
+    border-radius: var(--card-radius);
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+    text-align: center;
+  }
+  .persona-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--allen-blue);
+    color: white;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .persona-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-weight: 500;
+  }
+
+  .score-breakdown {
+    width: 100%;
+    background: white;
+    border-radius: var(--card-radius);
+    padding: 16px 20px;
+    box-shadow: var(--card-shadow);
+  }
+  .breakdown-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #F3F4F6;
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-left { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+  .breakdown-right { font-size: 13px; font-weight: 800; color: var(--text-primary); }
+
+  /* ─── SCREEN 3: HOME ─── */
+  #screen-home { background: var(--allen-blue-bg); }
+  .home-header {
+    padding: 8px 20px 16px;
+    background: white;
+    flex-shrink: 0;
+  }
+  .home-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .home-course-tags { display: flex; gap: 6px; align-items: center; }
+  .course-tag {
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #EEF4FF;
+    color: var(--allen-blue);
+    border: 1px solid #C7DCFF;
+  }
+  .course-tag.green { background: #E8FFF5; color: var(--allen-green); border-color: #A8EDCF; }
+  .header-icons { display: flex; gap: 8px; }
+  .header-icon-btn {
+    width: 36px; height: 36px;
+    background: #F3F4F6;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary);
+  }
+  .change-course {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--allen-blue);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .home-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 20px;
+  }
+
+  .profile-hero-card {
+    background: linear-gradient(135deg, #1A5FBB 0%, #2196F3 100%);
+    border-radius: var(--card-radius);
+    padding: 20px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .profile-hero-card::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 120px; height: 120px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .profile-hero-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; right: 40px;
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+  .profile-greeting {
+    font-size: 12px;
+    opacity: 0.8;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .profile-name {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 12px;
+  }
+  .profile-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .profile-meta-chip {
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .profile-persona-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  .profile-persona-icon { font-size: 22px; }
+  .profile-persona-info {}
+  .profile-persona-label { font-size: 10px; opacity: 0.8; font-weight: 600; }
+  .profile-persona-name { font-size: 15px; font-weight: 800; }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-card {
+    background: white;
+    border-radius: var(--card-radius);
+    padding: 16px;
+    box-shadow: var(--card-shadow);
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--allen-blue);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .stat-bar {
+    height: 4px;
+    background: #EEF2F8;
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .stat-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--allen-blue);
+  }
+
+  .subject-cards-row {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .subject-card {
+    min-width: 110px;
+    background: white;
+    border-radius: var(--card-radius);
+    padding: 14px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .subject-icon { font-size: 20px; margin-bottom: 4px; }
+  .subject-name { font-size: 12px; font-weight: 800; color: var(--text-primary); }
+  .subject-level {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  .level-strong { background: #E8FFF5; color: var(--allen-green); }
+  .level-good { background: #EEF4FF; color: var(--allen-blue); }
+  .level-building { background: #FFF8E0; color: #B45309; }
+
+  .insights-card {
+    background: white;
+    border-radius: var(--card-radius);
+    padding: 16px 20px;
+    box-shadow: var(--card-shadow);
+  }
+  .insight-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #F3F4F6;
+  }
+  .insight-row:last-child { border-bottom: none; }
+  .insight-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .insight-text .insight-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .insight-text .insight-sub { font-size: 12px; color: var(--text-secondary); font-weight: 500; margin-top: 2px; }
+
+  /* ─── SCREEN 4: DOUBTS ─── */
+  #screen-doubts { background: var(--allen-blue-bg); }
+
+  .doubts-header-gradient {
+    background: linear-gradient(180deg, #5BAAF0 0%, #87BBEF 60%, rgba(135,187,239,0.3) 100%);
+    padding-bottom: 24px;
+    flex-shrink: 0;
+  }
+  .doubts-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 20px 16px;
+  }
+  .doubts-title { font-size: 20px; font-weight: 900; color: var(--text-primary); }
+  .doubts-help-btn {
+    width: 36px; height: 36px;
+    background: white;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .allie-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px 4px;
+  }
+  .allie-blob-lg {
+    width: 90px;
+    height: 90px;
+    border-radius: 50% 45% 55% 40% / 40% 55% 45% 60%;
+    background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.95) 0%, rgba(180,220,255,0.8) 50%, rgba(150,200,250,0.6) 100%);
+    box-shadow: 0 0 30px rgba(100,180,255,0.4), 0 0 60px rgba(100,150,255,0.2), 0 8px 24px rgba(0,0,0,0.1);
+    animation: blobFloat 3s ease-in-out infinite, blobMorph 6s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .allie-face-lg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin-top: -3px;
+  }
+  .allie-eyes-lg { display: flex; gap: 9px; }
+  .allie-eye-lg {
+    width: 8px; height: 10px;
+    background: #1A3A6B;
+    border-radius: 50%;
+    animation: blink 4s ease-in-out infinite;
+  }
+  .allie-smile-lg {
+    width: 14px; height: 7px;
+    border-bottom: 2px solid #1A3A6B;
+    border-left: 1.5px solid #1A3A6B;
+    border-right: 1.5px solid #1A3A6B;
+    border-radius: 0 0 7px 7px;
+  }
+  .allie-caption { font-size: 17px; font-weight: 800; color: var(--text-primary); }
+  .allie-subcaptions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .allie-sub { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+  .allie-sub:nth-child(2) { opacity: 0.7; }
+  .allie-sub:nth-child(3) { opacity: 0.45; }
+
+  /* Mode switcher pill */
+  .mode-switcher {
+    background: white;
+    border-radius: 24px;
+    padding: 5px;
+    display: flex;
+    gap: 2px;
+    margin: 0 20px 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+  }
+  .mode-pill {
+    flex: 1;
+    padding: 8px 6px;
+    border-radius: 20px;
+    border: none;
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: center;
+    position: relative;
+    white-space: nowrap;
+  }
+  .mode-pill.active {
+    background: var(--allen-blue);
+    color: white;
+    box-shadow: 0 2px 8px rgba(26,95,187,0.3);
+  }
+  .mode-pill .suggested-dot {
+    position: absolute;
+    top: 3px; right: 4px;
+    width: 6px; height: 6px;
+    background: var(--allen-yellow);
+    border-radius: 50%;
+    border: 1.5px solid white;
+  }
+  .mode-pill.active .suggested-dot { border-color: var(--allen-blue); }
+
+  /* Chat area */
+  .chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .chat-bubble {
+    max-width: 82%;
+    animation: bubbleIn 0.25s ease-out;
+  }
+  @keyframes bubbleIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .chat-bubble.user { align-self: flex-end; }
+  .chat-bubble.ai { align-self: flex-start; }
+  .bubble-content {
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: var(--text-primary);
+  }
+  .chat-bubble.user .bubble-content {
+    background: var(--allen-blue);
+    color: white;
+    border-bottom-right-radius: 4px;
+    font-weight: 600;
+  }
+  .chat-bubble.ai .bubble-content {
+    background: white;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .bubble-sender {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-light);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .bubble-sender .mode-tag {
+    background: #EEF4FF;
+    color: var(--allen-blue);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 10px;
+  }
+  .typing-indicator {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    width: fit-content;
+  }
+  .typing-dot {
+    width: 6px; height: 6px;
+    background: var(--text-light);
+    border-radius: 50%;
+    animation: typingBounce 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  /* Input bar */
+  .chat-input-wrap {
+    padding: 10px 16px 12px;
+    background: #EEF2F8;
+    flex-shrink: 0;
+  }
+  .chat-input-bar {
+    background: white;
+    border-radius: 28px;
+    padding: 6px 6px 6px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .chat-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: transparent;
+    padding: 6px 0;
+  }
+  .chat-input::placeholder { color: var(--text-light); }
+  .chat-camera-btn {
+    width: 36px; height: 36px;
+    background: var(--allen-blue);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .chat-mic-btn {
+    width: 36px; height: 36px;
+    background: transparent;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--allen-blue);
+    flex-shrink: 0;
+  }
+  .chat-send-btn {
+    width: 40px; height: 40px;
+    background: var(--allen-blue);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(26,95,187,0.3);
+    transition: all 0.2s;
+  }
+  .chat-send-btn:active { transform: scale(0.92); }
+
+  /* ─── MODAL OVERLAY ─── */
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-overlay.hidden { display: none; }
+
+  .modal-sheet {
+    width: 100%;
+    background: white;
+    border-radius: 24px 24px 0 0;
+    padding: 0 0 32px;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: #E5E7EB;
+    border-radius: 2px;
+    margin: 12px auto 20px;
+  }
+
+  /* Modal slides */
+  .modal-slides {
+    display: flex;
+    overflow-x: hidden;
+    width: 100%;
+    transition: transform 0.3s ease;
+  }
+  .modal-slide {
+    min-width: 100%;
+    padding: 0 24px 24px;
+  }
+
+  .modal-slide-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 0;
+  }
+  .slide-dot {
+    width: 6px; height: 6px;
+    border-radius: 3px;
+    background: #E5E7EB;
+    transition: all 0.3s;
+  }
+  .slide-dot.active { background: var(--allen-blue); width: 18px; }
+
+  .modes-intro-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .modes-intro-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .mode-intro-card {
+    display: flex;
+    gap: 14px;
+    padding: 14px;
+    background: #FAFAFA;
+    border-radius: 14px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+    border: 1.5px solid transparent;
+    transition: all 0.2s;
+  }
+  .mode-intro-card:hover { border-color: var(--allen-blue); background: #EEF4FF; }
+  .mode-intro-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .mode-intro-text {}
+  .mode-intro-name { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+  .mode-intro-desc { font-size: 12px; color: var(--text-secondary); font-weight: 500; margin-top: 3px; line-height: 1.5; }
+
+  .your-mode-slide {}
+  .your-mode-header { text-align: center; margin-bottom: 20px; }
+  .your-mode-header h3 { font-size: 18px; font-weight: 900; color: var(--text-primary); margin-bottom: 6px; }
+  .your-mode-header p { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+  .your-mode-card {
+    background: linear-gradient(135deg, #1A5FBB 0%, #2196F3 100%);
+    border-radius: var(--card-radius);
+    padding: 20px;
+    color: white;
+    text-align: center;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .your-mode-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 100px; height: 100px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  .suggested-label {
+    background: var(--allen-yellow);
+    color: #1A1A2E;
+    border-radius: 20px;
+    padding: 3px 14px;
+    font-size: 11px;
+    font-weight: 800;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  .your-mode-name { font-size: 24px; font-weight: 900; margin-bottom: 6px; }
+  .your-mode-icon { font-size: 36px; margin-bottom: 8px; }
+  .your-mode-desc { font-size: 13px; opacity: 0.85; line-height: 1.5; font-weight: 500; }
+  .your-score-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .your-score-chip {
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .modal-btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .btn-secondary {
+    flex: 1;
+    height: 48px;
+    background: #F3F4F6;
+    color: var(--text-primary);
+    border: none;
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* Mode Select Modal */
+  .mode-select-modal {}
+  .mode-select-title { font-size: 17px; font-weight: 900; color: var(--text-primary); margin-bottom: 4px; }
+  .mode-select-sub { font-size: 13px; color: var(--text-secondary); font-weight: 500; margin-bottom: 16px; }
+  .mode-select-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1.5px solid #E5E7EB;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .mode-select-option.selected {
+    border-color: var(--allen-blue);
+    background: #EEF4FF;
+  }
+  .mode-select-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .mode-select-info { flex: 1; }
+  .mode-select-name { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+  .mode-select-desc { font-size: 12px; color: var(--text-secondary); font-weight: 500; margin-top: 2px; }
+  .mode-suggested-badge {
+    background: var(--allen-yellow);
+    color: #1A1A2E;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  .mode-check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid #E5E7EB;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .mode-select-option.selected .mode-check {
+    background: var(--allen-blue);
+    border-color: var(--allen-blue);
+  }
+
+  /* Transitions */
+  .slide-in-right { animation: slideInRight 0.3s ease-out; }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Scrollbar hide */
+  ::-webkit-scrollbar { display: none; }
+  * { scrollbar-width: none; }
+
+  /* Smooth transitions between screens */
+  .screen { transition: opacity 0.2s; }
+</style>
+</head>
+<body>
+<div id="app-shell">
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 1: INFO ENTRY
+  ══════════════════════════════════════════ -->
+  <div class="screen active" id="screen-info">
+    <div class="status-bar dark">
+      <span>9:41</span>
+      <div class="status-icons">
+        <svg width="16" height="12" fill="white" viewBox="0 0 16 12"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+        <span>4G</span>
+        <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3.5" stroke="white" stroke-opacity=".4"/><rect x="1.5" y="1.5" width="14" height="9" rx="2.5" fill="white"/><path d="M22 4.5v3a2 2 0 000-3z" fill="white" opacity=".4"/></svg>
+      </div>
+    </div>
+    
+    <div class="info-header">
+      <div class="allen-logo-text"><span>ALLEN</span><span> ✦</span></div>
+    </div>
+    
+    <div class="info-body">
+      <div class="info-welcome">
+        <h1>Let's get you set up! 👋</h1>
+        <p>Tell us a bit about yourself to personalise your experience.</p>
+      </div>
+      
+      <div class="info-form-card">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" type="text" id="input-name" placeholder="Enter your name" autocomplete="off">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Which Class are you in?</label>
+          <div class="class-selector">
+            <button class="class-chip" onclick="selectClass(this, '11')">Class 11</button>
+            <button class="class-chip" onclick="selectClass(this, '12')">Class 12</button>
+            <button class="class-chip" onclick="selectClass(this, '12 Pass')">12th Pass</button>
+            <button class="class-chip" onclick="selectClass(this, '10')">Class 10</button>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Preparing for</label>
+          <div class="target-chips">
+            <button class="target-chip" onclick="toggleTarget(this)">JEE Main</button>
+            <button class="target-chip" onclick="toggleTarget(this)">JEE Advanced</button>
+            <button class="target-chip" onclick="toggleTarget(this)">NEET</button>
+            <button class="target-chip" onclick="toggleTarget(this)">CUET</button>
+            <button class="target-chip" onclick="toggleTarget(this)">Other</button>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Exam Year</label>
+          <select class="form-select" id="input-year">
+            <option value="">Select year</option>
+            <option>2025</option>
+            <option>2026</option>
+            <option>2027</option>
+            <option>2028</option>
+          </select>
+        </div>
+        
+        <button class="btn-primary" onclick="goToQuiz()">
+          Continue
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 2: QUIZ
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="screen-quiz">
+    <div class="quiz-header-gradient">
+      <div class="status-bar dark" style="padding: 0; margin-bottom: 12px;">
+        <span>9:41</span>
+        <div class="status-icons">
+          <svg width="16" height="12" fill="white" viewBox="0 0 16 12"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+          <span>4G</span>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3.5" stroke="white" stroke-opacity=".4"/><rect x="1.5" y="1.5" width="14" height="9" rx="2.5" fill="white"/><path d="M22 4.5v3a2 2 0 000-3z" fill="white" opacity=".4"/></svg>
+        </div>
+      </div>
+      <div class="quiz-header-top">
+        <button class="quiz-back-btn" onclick="backToInfo()">
+          <svg width="18" height="18" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="quiz-step-badge" id="quiz-step-badge">Let's build your profile</div>
+        <div style="width:36px"></div>
+      </div>
+      <div class="quiz-progress-bar" id="quiz-progress-bar" style="display:none; margin: 0 4px;">
+        <div class="quiz-progress-fill" id="quiz-progress-fill" style="width: 12%"></div>
+      </div>
+    </div>
+    
+    <!-- Welcome sub-screen -->
+    <div id="quiz-welcome" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:28px 24px; text-align:center; gap:20px; overflow-y:auto;">
+      <div class="welcome-mascot">
+        <div class="allie-blob">
+          <div class="allie-face">
+            <div class="allie-eyes">
+              <div class="allie-eye"></div>
+              <div class="allie-eye"></div>
+            </div>
+            <div class="allie-smile"></div>
+          </div>
+        </div>
+      </div>
+      <div class="welcome-text">
+        <h2>Hey <span id="welcome-name">there</span>! 👋<br>Let's build your profile</h2>
+        <p>Answer 8 quick questions and we'll personalise your Allie experience — the right explanations, at the right depth, for you.</p>
+      </div>
+      <div class="welcome-info-pills">
+        <div class="info-pill"><span>⏱</span> Only 5 mins</div>
+        <div class="info-pill"><span>🎯</span> 8 questions</div>
+        <div class="info-pill"><span>✨</span> Fully personalised</div>
+      </div>
+      <button class="btn-primary" style="width:100%; margin-top:4px;" onclick="startQuiz()">
+        Start building my profile
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+    
+    <!-- Questions sub-screen -->
+    <div id="quiz-questions" style="display:none; flex:1; overflow-y:auto; padding:20px;">
+      <!-- Injected by JS -->
+    </div>
+    
+    <!-- Score sub-screen -->
+    <div id="quiz-score" style="display:none;">
+      <!-- Injected by JS -->
+    </div>
+    
+    <!-- Nav for questions -->
+    <div class="quiz-nav" id="quiz-nav" style="display:none;">
+      <button class="btn-primary" style="flex:1; background:#F3F4F6; color:var(--text-primary); box-shadow:none;" id="quiz-prev-btn" onclick="prevQuestion()">← Previous</button>
+      <button class="btn-primary" style="flex:2;" id="quiz-next-btn" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 3: HOME (with bottom nav)
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="screen-home">
+    <div class="status-bar light" style="background: white;">
+      <span>9:41</span>
+      <div class="status-icons">
+        <svg width="16" height="12" fill="#1A1A2E" viewBox="0 0 16 12"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+        <span>4G</span>
+        <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3.5" stroke="#1A1A2E" stroke-opacity=".4"/><rect x="1.5" y="1.5" width="14" height="9" rx="2.5" fill="#1A1A2E"/><path d="M22 4.5v3a2 2 0 000-3z" fill="#1A1A2E" opacity=".4"/></svg>
+      </div>
+    </div>
+    
+    <div class="home-header">
+      <div class="home-header-row">
+        <div class="home-course-tags">
+          <span class="course-tag" id="home-class-tag">12+</span>
+          <span class="course-tag" id="home-target-tag">JEE Adv.</span>
+          <span class="course-tag green">FREE</span>
+        </div>
+        <div class="header-icons">
+          <button class="header-icon-btn">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82 19.79 19.79 0 011 1.18C1 .08 1.88-.02 2.92.04A2 2 0 015 2a12.86 12.86 0 00.57 2.57 2 2 0 01-.45 2.11L4.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.57.57 2 2 0 011.96 2.03z"/></svg>
+          </button>
+          <button class="header-icon-btn">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </button>
+          <button class="header-icon-btn">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="change-course">
+        <span>Change course</span>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </div>
+    
+    <div class="home-body">
+      <!-- Profile hero -->
+      <div class="profile-hero-card">
+        <div class="profile-greeting">Good morning! ☀️</div>
+        <div class="profile-name" id="home-name">Arjun Sharma</div>
+        <div class="profile-meta" id="home-meta">
+          <span class="profile-meta-chip" id="meta-class">Class 12</span>
+          <span class="profile-meta-chip" id="meta-target">JEE Advanced</span>
+          <span class="profile-meta-chip" id="meta-year">2026</span>
+        </div>
+        <div class="profile-persona-row">
+          <div class="profile-persona-icon" id="home-persona-icon">⚡</div>
+          <div class="profile-persona-info">
+            <div class="profile-persona-label">YOUR LEARNING PROFILE</div>
+            <div class="profile-persona-name" id="home-persona-name">Sprinter Mode</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Score stats -->
+      <div class="section-title">Your Profile Score</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-overall">82</div>
+          <div class="stat-label">Overall Score</div>
+          <div class="stat-bar"><div class="stat-bar-fill" id="stat-bar-overall" style="width: 82%;"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:#00B96B" id="stat-knowledge">78</div>
+          <div class="stat-label">Knowledge Level</div>
+          <div class="stat-bar"><div class="stat-bar-fill" id="stat-bar-knowledge" style="width: 78%; background:#00B96B;"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:#F59E0B" id="stat-speed">88</div>
+          <div class="stat-label">Grasp Speed</div>
+          <div class="stat-bar"><div class="stat-bar-fill" id="stat-bar-speed" style="width: 88%; background:#F59E0B;"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:#8B5CF6" id="stat-style">Analytical</div>
+          <div class="stat-label">Learning Style</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width: 85%; background:#8B5CF6;"></div></div>
+        </div>
+      </div>
+      
+      <!-- Subject breakdown -->
+      <div class="section-title">Subject Strengths</div>
+      <div class="subject-cards-row" id="subject-cards">
+        <div class="subject-card">
+          <div class="subject-icon">⚛️</div>
+          <div class="subject-name">Physics</div>
+          <span class="subject-level level-strong" id="phys-level">Strong</span>
+        </div>
+        <div class="subject-card">
+          <div class="subject-icon">∫</div>
+          <div class="subject-name">Maths</div>
+          <span class="subject-level level-good" id="math-level">Good</span>
+        </div>
+        <div class="subject-card">
+          <div class="subject-icon">🧪</div>
+          <div class="subject-name">Chemistry</div>
+          <span class="subject-level level-building" id="chem-level">Building</span>
+        </div>
+      </div>
+      
+      <!-- Insights -->
+      <div class="section-title">Allie's Insights for You</div>
+      <div class="insights-card" id="insights-card">
+        <div class="insight-row">
+          <div class="insight-icon" style="background:#EEF4FF;">🎯</div>
+          <div class="insight-text">
+            <div class="insight-title" id="insight-1-title">Fast absorber — skip the basics</div>
+            <div class="insight-sub" id="insight-1-sub">Allie will give you direct solutions with key logic, no hand-holding.</div>
+          </div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-icon" style="background:#E8FFF5;">💡</div>
+          <div class="insight-text">
+            <div class="insight-title" id="insight-2-title">Focus on Chemistry</div>
+            <div class="insight-sub" id="insight-2-sub">Based on your answers, Chemistry needs more attention. Allie will reinforce key concepts here.</div>
+          </div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-icon" style="background:#FFF8E0;">⚡</div>
+          <div class="insight-text">
+            <div class="insight-title">Switch modes anytime</div>
+            <div class="insight-sub">Feeling stuck? Switch to Architect mode in the Doubts tab for deeper breakdowns.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="switchTab('home')" id="home-nav-home">
+        <div class="nav-icon"><div class="allen-a">A</div></div>
+        <span class="nav-label">Home</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('doubts')" id="home-nav-doubts">
+        <div class="nav-icon">
+          <svg fill="none" stroke="#9CA3AF" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+        </div>
+        <span class="nav-label">Doubts</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 4: DOUBTS (with bottom nav)
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="screen-doubts">
+    <div class="doubts-header-gradient">
+      <div class="status-bar light" style="padding: 10px 20px 0;">
+        <span>9:41</span>
+        <div class="status-icons">
+          <svg width="16" height="12" fill="#1A1A2E" viewBox="0 0 16 12"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+          <span>4G</span>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3.5" stroke="#1A1A2E" stroke-opacity=".4"/><rect x="1.5" y="1.5" width="14" height="9" rx="2.5" fill="#1A1A2E"/><path d="M22 4.5v3a2 2 0 000-3z" fill="#1A1A2E" opacity=".4"/></svg>
+        </div>
+      </div>
+      <div class="doubts-header-top">
+        <span class="doubts-title">Doubts</span>
+        <button class="doubts-help-btn">
+          <svg width="18" height="18" fill="none" stroke="#6B7280" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+        </button>
+      </div>
+      
+      <!-- Allie -->
+      <div class="allie-center" id="allie-center">
+        <div class="allie-blob-lg">
+          <div class="allie-face-lg">
+            <div class="allie-eyes-lg">
+              <div class="allie-eye-lg"></div>
+              <div class="allie-eye-lg"></div>
+            </div>
+            <div class="allie-smile-lg"></div>
+          </div>
+        </div>
+        <div class="allie-caption">How can Allie help you today?</div>
+        <div class="allie-subcaptions">
+          <div class="allie-sub">Understand with real life examples</div>
+          <div class="allie-sub">Clear your doubts instantly</div>
+          <div class="allie-sub">Simplify your concepts</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mode switcher -->
+    <div class="mode-switcher">
+      <button class="mode-pill active" id="mode-btn-sprinter" onclick="selectMode('sprinter', this)">
+        ⚡ Sprinter
+        <span class="suggested-dot" id="suggested-dot-sprinter"></span>
+      </button>
+      <button class="mode-pill" id="mode-btn-advanced" onclick="selectMode('advanced', this)">
+        🎯 Advanced
+        <span class="suggested-dot" id="suggested-dot-advanced" style="display:none"></span>
+      </button>
+      <button class="mode-pill" id="mode-btn-intermediate" onclick="selectMode('intermediate', this)">
+        📐 Inter...
+        <span class="suggested-dot" id="suggested-dot-intermediate" style="display:none"></span>
+      </button>
+      <button class="mode-pill" id="mode-btn-foundation" onclick="selectMode('foundation', this)">
+        🌱 Found...
+        <span class="suggested-dot" id="suggested-dot-foundation" style="display:none"></span>
+      </button>
+    </div>
+    
+    <!-- Chat area -->
+    <div class="chat-area" id="chat-area">
+      <!-- messages injected here -->
+    </div>
+    
+    <!-- Input -->
+    <div class="chat-input-wrap">
+      <div class="chat-input-bar">
+        <button class="chat-camera-btn">
+          <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </button>
+        <input class="chat-input" id="chat-input-field" type="text" placeholder="Type here" onkeydown="handleChatKey(event)">
+        <button class="chat-mic-btn">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
+        </button>
+        <button class="chat-send-btn" onclick="sendMessage()">
+          <svg width="18" height="18" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="switchTab('home')" id="doubts-nav-home">
+        <div class="nav-icon"><div class="allen-a" style="background:transparent; border:1.5px solid #D1D5DB; color:#9CA3AF;">A</div></div>
+        <span class="nav-label">Home</span>
+      </div>
+      <div class="nav-item active" onclick="switchTab('doubts')" id="doubts-nav-doubts">
+        <div class="nav-icon">
+          <svg fill="none" stroke="var(--allen-blue)" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+        </div>
+        <span class="nav-label" style="color:var(--allen-blue)">Doubts</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MODAL: ONBOARDING MODES INTRO
+  ══════════════════════════════════════════ -->
+  <div class="modal-overlay hidden" id="modes-modal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      
+      <div class="modal-slide-dots">
+        <div class="slide-dot active" id="dot-0"></div>
+        <div class="slide-dot" id="dot-1"></div>
+      </div>
+      
+      <div class="modal-slides" id="modal-slides-container">
+        <!-- Slide 1: Modes intro -->
+        <div class="modal-slide">
+          <div class="modes-intro-title">Meet your learning modes ✨</div>
+          <div class="modes-intro-sub">Allie adapts to how you learn best. Here's what each mode does:</div>
+          
+          <div class="mode-intro-card">
+            <div class="mode-intro-icon" style="background:#EEF4FF;">⚡</div>
+            <div class="mode-intro-text">
+              <div class="mode-intro-name">Sprinter</div>
+              <div class="mode-intro-desc">Direct answers with key logic. No unnecessary explanations. Best for fast learners who just need the core idea.</div>
+            </div>
+          </div>
+          <div class="mode-intro-card">
+            <div class="mode-intro-icon" style="background:#E8FFF5;">🎯</div>
+            <div class="mode-intro-text">
+              <div class="mode-intro-name">Advanced</div>
+              <div class="mode-intro-desc">Concept + worked example. Sharp and efficient for students with strong foundations who want depth without hand-holding.</div>
+            </div>
+          </div>
+          <div class="mode-intro-card">
+            <div class="mode-intro-icon" style="background:#F0EDFF;">📐</div>
+            <div class="mode-intro-text">
+              <div class="mode-intro-name">Intermediate</div>
+              <div class="mode-intro-desc">Concept explained clearly, then solved step by step. Great for building confidence across topics.</div>
+            </div>
+          </div>
+          <div class="mode-intro-card">
+            <div class="mode-intro-icon" style="background:#FFF8E0;">🌱</div>
+            <div class="mode-intro-text">
+              <div class="mode-intro-name">Foundation</div>
+              <div class="mode-intro-desc">Step by step. Nothing assumed. Every concept built from ground up with understanding checks along the way.</div>
+            </div>
+          </div>
+          
+          <button class="btn-primary" style="width:100%; margin-top:8px;" onclick="nextModalSlide()">
+            See your suggested mode →
+          </button>
+        </div>
+        
+        <!-- Slide 2: Your mode -->
+        <div class="modal-slide">
+          <div class="your-mode-header">
+            <h3>Your mode is ready 🎯</h3>
+            <p>Based on your profile score, Allie recommends:</p>
+          </div>
+          
+          <div class="your-mode-card">
+            <div class="suggested-label">✦ SUGGESTED FOR YOU</div>
+            <div class="your-mode-icon" id="modal-mode-icon">⚡</div>
+            <div class="your-mode-name" id="modal-mode-name">Sprinter Mode</div>
+            <div class="your-mode-desc" id="modal-mode-desc">Direct answers with key logic. No fluff, no overexplaining. You clearly know your stuff — let's move fast.</div>
+            <div class="your-score-row">
+              <span class="your-score-chip">Score: <span id="modal-score">82</span>/100</span>
+              <span class="your-score-chip" id="modal-style-chip">Analytical learner</span>
+            </div>
+          </div>
+          
+          <p style="font-size:13px; color:var(--text-secondary); text-align:center; margin-bottom:14px; font-weight:500;">You can always switch modes from the Doubts tab. Your suggested mode will be marked.</p>
+          
+          <div class="modal-btn-row">
+            <button class="btn-secondary" onclick="prevModalSlide()">← Back</button>
+            <button class="btn-primary" style="flex:2;" onclick="closeModesModal()">Start asking doubts ✨</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MODAL: MODE SWITCHER
+  ══════════════════════════════════════════ -->
+  <div class="modal-overlay hidden" id="mode-select-modal">
+    <div class="modal-sheet" style="padding-bottom:40px;">
+      <div class="modal-handle"></div>
+      <div style="padding: 0 24px 24px;">
+        <div class="mode-select-title">Switch learning mode</div>
+        <div class="mode-select-sub">Your suggested mode is marked. You can switch anytime.</div>
+        
+        <div id="mode-options-list">
+          <!-- injected by JS -->
+        </div>
+        
+        <button class="btn-primary" style="width:100%; margin-top:8px;" onclick="confirmModeSwitch()">Apply Mode</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+const state = {
+  name: '',
+  class: '',
+  target: '',
+  year: '',
+  currentQuestion: 0,
+  answers: {},
+  score: 0,
+  knowledgeScore: 0,
+  speedScore: 0,
+  learningStyle: '',
+  persona: '',
+  personaIcon: '',
+  personaDesc: '',
+  currentMode: 'sprinter',
+  suggestedMode: 'sprinter',
+  currentTab: 'home',
+  modalSlide: 0,
+  pendingMode: null,
+  chatMessages: [],
+  allieVisible: true,
+  hasSeenModesModal: false
+};
+
+const MODES = {
+  sprinter: { name: 'Sprinter', icon: '⚡', color: '#EEF4FF', desc: 'Direct answers with key logic. No fluff, no overexplaining. You clearly know your stuff — let\'s move fast.' },
+  advanced: { name: 'Advanced', icon: '🎯', color: '#E8FFF5', desc: 'Concept + worked example + you try. A sharp approach for students who want depth without hand-holding.' },
+  intermediate: { name: 'Intermediate', icon: '📐', color: '#F0EDFF', desc: 'Concept first, then solve. Allie breaks problems down clearly before jumping to answers.' },
+  foundation: { name: 'Foundation', icon: '🌱', color: '#FFF8E0', desc: 'Step by step, nothing assumed. Every concept built from the ground up.' }
+};
+
+// ══════════════════════════════════════════
+// QUESTIONS
+// ══════════════════════════════════════════
+const QUESTIONS = [
+  {
+    id: 'q1', subject: 'Physics', type: 'knowledge', correctIndex: 1,
+    text: 'A ball is thrown vertically upward. At the highest point, its acceleration is:',
+    options: ['Zero', '9.8 m/s² downward', '9.8 m/s² upward', 'Depends on initial velocity']
+  },
+  {
+    id: 'q2', subject: 'Maths', type: 'knowledge', correctIndex: 2,
+    text: 'The derivative of sin(x) · cos(x) is:',
+    options: ['sin²(x) – cos²(x)', '–sin(2x)', 'cos(2x)', '2sin(x)cos(x)']
+  },
+  {
+    id: 'q3', subject: 'Chemistry', type: 'knowledge', correctIndex: 0,
+    text: 'Which of the following has the highest electronegativity?',
+    options: ['Fluorine', 'Oxygen', 'Nitrogen', 'Chlorine']
+  },
+  {
+    id: 'q4', subject: 'Physics', type: 'knowledge', correctIndex: 3,
+    text: 'In a series RLC circuit at resonance, the impedance is:',
+    options: ['Maximum', 'Zero', 'Equal to XL', 'Equal to R (minimum)']
+  },
+  {
+    id: 'q5', subject: 'Learning Style', type: 'style',
+    text: 'When you encounter a new concept, you prefer to:',
+    options: [
+      'Get the formula and start applying it immediately',
+      'See a worked example first, then try myself',
+      'Understand the theory completely before solving',
+      'Break it down to the most basic idea first'
+    ],
+    styleMap: ['sprinter', 'advanced', 'intermediate', 'foundation']
+  },
+  {
+    id: 'q6', subject: 'Learning Style', type: 'style',
+    text: 'How many times do you usually need to go through a concept before it clicks?',
+    options: [
+      'Once — I get it quickly',
+      '2–3 times with practice',
+      'Several times with different explanations',
+      'Many times, step by step'
+    ],
+    speedMap: [90, 70, 50, 30]
+  },
+  {
+    id: 'q7', subject: 'Maths', type: 'knowledge', correctIndex: 1,
+    text: 'If the roots of x² – 5x + k = 0 are equal, the value of k is:',
+    options: ['5', '6.25', '5/2', '25']
+  },
+  {
+    id: 'q8', subject: 'Learning Style', type: 'style',
+    text: 'When you\'re stuck on a problem, you prefer an AI tutor to:',
+    options: [
+      'Just give me the solution directly',
+      'Show me the next step only',
+      'Explain what concept I\'m missing',
+      'Walk me through from the beginning'
+    ],
+    styleMap: ['sprinter', 'advanced', 'intermediate', 'foundation']
+  }
+];
+
+// ══════════════════════════════════════════
+// SCREEN 1: INFO
+// ══════════════════════════════════════════
+let selectedClass = '';
+let selectedTargets = [];
+
+function selectClass(el, val) {
+  document.querySelectorAll('.class-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedClass = val;
+}
+
+function toggleTarget(el) {
+  el.classList.toggle('selected');
+  selectedTargets = Array.from(document.querySelectorAll('.target-chip.selected')).map(c => c.textContent);
+}
+
+function goToQuiz() {
+  const name = document.getElementById('input-name').value.trim();
+  if (!name) { document.getElementById('input-name').focus(); return; }
+  
+  state.name = name;
+  state.class = selectedClass || '12';
+  state.target = selectedTargets.join(', ') || 'JEE Advanced';
+  state.year = document.getElementById('input-year').value || '2026';
+  
+  document.getElementById('welcome-name').textContent = name.split(' ')[0];
+  showScreen('screen-quiz');
+}
+
+function backToInfo() {
+  if (document.getElementById('quiz-questions').style.display !== 'none') {
+    showWelcome();
+  } else if (document.getElementById('quiz-score').style.display !== 'none') {
+    // stay
+  } else {
+    showScreen('screen-info');
+  }
+}
+
+// ══════════════════════════════════════════
+// SCREEN 2: QUIZ
+// ══════════════════════════════════════════
+function showWelcome() {
+  document.getElementById('quiz-welcome').style.display = 'flex';
+  document.getElementById('quiz-questions').style.display = 'none';
+  document.getElementById('quiz-score').style.display = 'none';
+  document.getElementById('quiz-nav').style.display = 'none';
+  document.getElementById('quiz-progress-bar').style.display = 'none';
+  document.getElementById('quiz-step-badge').textContent = "Let's build your profile";
+}
+
+function startQuiz() {
+  state.currentQuestion = 0;
+  state.answers = {};
+  document.getElementById('quiz-welcome').style.display = 'none';
+  document.getElementById('quiz-questions').style.display = 'block';
+  document.getElementById('quiz-nav').style.display = 'flex';
+  document.getElementById('quiz-progress-bar').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[state.currentQuestion];
+  const n = state.currentQuestion + 1;
+  const total = QUESTIONS.length;
+  
+  document.getElementById('quiz-step-badge').textContent = `${n} of ${total}`;
+  document.getElementById('quiz-progress-fill').style.width = `${(n / total) * 100}%`;
+  document.getElementById('quiz-prev-btn').style.opacity = n === 1 ? '0.4' : '1';
+  document.getElementById('quiz-next-btn').textContent = n === total ? 'See my results →' : 'Next →';
+  
+  const container = document.getElementById('quiz-questions');
+  const answered = state.answers[q.id];
+  
+  container.innerHTML = `
+    <div class="question-card slide-in-right">
+      <div class="q-subject-tag">
+        ${q.subject === 'Physics' ? '⚛️' : q.subject === 'Maths' ? '∫' : q.subject === 'Chemistry' ? '🧪' : '💭'} ${q.subject}
+      </div>
+      <div class="q-number">Question ${n}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="options-list">
+        ${q.options.map((opt, i) => `
+          <button class="option-btn ${answered === i ? 'selected' : ''}" onclick="selectOption(${i})">
+            <span class="option-label">${String.fromCharCode(65 + i)}</span>
+            <span>${opt}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function selectOption(idx) {
+  const q = QUESTIONS[state.currentQuestion];
+  state.answers[q.id] = idx;
+  
+  // Visual feedback
+  document.querySelectorAll('.option-btn').forEach((btn, i) => {
+    btn.classList.remove('selected');
+    if (i === idx) btn.classList.add('selected');
+  });
+}
+
+function prevQuestion() {
+  if (state.currentQuestion > 0) {
+    state.currentQuestion--;
+    renderQuestion();
+  }
+}
+
+function nextQuestion() {
+  const q = QUESTIONS[state.currentQuestion];
+  if (state.answers[q.id] === undefined) {
+    // Shake effect — just proceed for prototype
+  }
+  
+  if (state.currentQuestion < QUESTIONS.length - 1) {
+    state.currentQuestion++;
+    renderQuestion();
+  } else {
+    calculateScore();
+    showScore();
+  }
+}
+
+function calculateScore() {
+  // Knowledge score
+  const knowledgeQs = QUESTIONS.filter(q => q.type === 'knowledge');
+  let correct = 0;
+  knowledgeQs.forEach(q => {
+    if (state.answers[q.id] === q.correctIndex) correct++;
+  });
+  state.knowledgeScore = Math.round((correct / knowledgeQs.length) * 100);
+  
+  // Speed score from q6
+  const speedMap = [90, 70, 50, 30];
+  const q6ans = state.answers['q6'];
+  state.speedScore = q6ans !== undefined ? speedMap[q6ans] : 70;
+  
+  // Style vote (majority from style questions)
+  const styleVotes = { sprinter: 0, builder: 0, architect: 0, foundation: 0 };
+  ['q5', 'q8'].forEach(qid => {
+    const q = QUESTIONS.find(q => q.id === qid);
+    const ans = state.answers[qid];
+    if (ans !== undefined && q.styleMap) styleVotes[q.styleMap[ans]]++;
+  });
+  
+  // Determine style
+  const styleKeys = Object.keys(styleVotes);
+  styleKeys.sort((a, b) => styleVotes[b] - styleVotes[a]);
+  const prefStyle = styleKeys[0];
+  
+  // Overall score: 60% knowledge, 40% speed
+  state.score = Math.round(state.knowledgeScore * 0.6 + state.speedScore * 0.4);
+  
+  // Assign persona based on score
+  if (state.score >= 75) {
+    state.persona = 'Sprinter';
+    state.currentMode = 'sprinter';
+    state.suggestedMode = 'sprinter';
+    state.personaIcon = '⚡';
+    state.personaDesc = 'You pick things up fast. Allie will skip the fluff and give you direct, logic-first answers.';
+    state.learningStyle = 'Analytical';
+  } else if (state.score >= 55) {
+    state.persona = 'Advanced';
+    state.currentMode = 'advanced';
+    state.suggestedMode = 'advanced';
+    state.personaIcon = '🎯';
+    state.personaDesc = 'Strong foundations. Allie will walk you through concepts with worked examples — sharp and efficient.';
+    state.learningStyle = 'Balanced';
+  } else if (state.score >= 35) {
+    state.persona = 'Intermediate';
+    state.currentMode = 'intermediate';
+    state.suggestedMode = 'intermediate';
+    state.personaIcon = '📐';
+    state.personaDesc = 'Building strong. Allie will explain concepts clearly before solving, so nothing slips through.';
+    state.learningStyle = 'Conceptual';
+  } else {
+    state.persona = 'Foundation';
+    state.currentMode = 'foundation';
+    state.suggestedMode = 'foundation';
+    state.personaIcon = '🌱';
+    state.personaDesc = 'Step-by-step learner. Allie will never assume prior knowledge and build from the ground up.';
+    state.learningStyle = 'Methodical';
+  }
+}
+
+function showScore() {
+  document.getElementById('quiz-questions').style.display = 'none';
+  document.getElementById('quiz-nav').style.display = 'none';
+  document.getElementById('quiz-progress-bar').style.display = 'none';
+  document.getElementById('quiz-step-badge').textContent = 'Your Profile';
+  
+  const scoreEl = document.getElementById('quiz-score');
+  scoreEl.style.display = 'flex';
+  scoreEl.style.flexDirection = 'column';
+  scoreEl.style.alignItems = 'center';
+  scoreEl.style.gap = '16px';
+  scoreEl.style.overflowY = 'auto';
+  scoreEl.style.padding = '20px';
+  scoreEl.style.flex = '1';
+  
+  const scoreDeg = Math.round((state.score / 100) * 360);
+  
+  scoreEl.innerHTML = `
+    <div style="text-align:center; margin-bottom:4px;">
+      <div style="font-size:20px; font-weight:900; color:var(--text-primary); margin-bottom:4px;">Profile built! 🎉</div>
+      <div style="font-size:13px; color:var(--text-secondary); font-weight:500;">Here's what we learned about you</div>
+    </div>
+    
+    <div class="score-circle-wrap">
+      <div class="score-circle-bg">
+        <div class="score-number">${state.score}</div>
+        <div class="score-label">/ 100</div>
+      </div>
+      <svg style="position:absolute;inset:-4px;width:148px;height:148px;transform:rotate(-90deg);" viewBox="0 0 148 148">
+        <circle cx="74" cy="74" r="70" fill="none" stroke="#E5E7EB" stroke-width="6"/>
+        <circle cx="74" cy="74" r="70" fill="none" stroke="var(--allen-blue)" stroke-width="6" 
+          stroke-dasharray="${Math.round(2 * Math.PI * 70)}" 
+          stroke-dashoffset="${Math.round(2 * Math.PI * 70 * (1 - state.score / 100))}"
+          stroke-linecap="round" style="transition: stroke-dashoffset 1.2s ease-out;"/>
+      </svg>
+    </div>
+    
+    <div class="persona-card">
+      <div class="persona-badge">${state.personaIcon} ${state.persona} Mode</div>
+      <div class="persona-desc">${state.personaDesc}</div>
+    </div>
+    
+    <div class="score-breakdown" style="width:100%">
+      <div class="breakdown-title">Score Breakdown</div>
+      <div class="breakdown-row">
+        <span class="breakdown-left">Knowledge Level</span>
+        <span class="breakdown-right" style="color:var(--allen-green)">${state.knowledgeScore}/100</span>
+      </div>
+      <div class="breakdown-row">
+        <span class="breakdown-left">Grasp Speed</span>
+        <span class="breakdown-right" style="color:#F59E0B">${state.speedScore}/100</span>
+      </div>
+      <div class="breakdown-row">
+        <span class="breakdown-left">Learning Style</span>
+        <span class="breakdown-right">${state.learningStyle}</span>
+      </div>
+      <div class="breakdown-row">
+        <span class="breakdown-left">Assigned Mode</span>
+        <span class="breakdown-right" style="color:var(--allen-blue)">${state.persona} ${state.personaIcon}</span>
+      </div>
+    </div>
+    
+    <button class="btn-primary" style="width:100%;" onclick="enterApp()">
+      Enter ALLEN → 
+    </button>
+    <div style="height:20px;"></div>
+  `;
+}
+
+function enterApp() {
+  updateHomeWithProfile();
+  showScreen('screen-home');
+}
+
+// ══════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════
+function updateHomeWithProfile() {
+  document.getElementById('home-name').textContent = state.name;
+  document.getElementById('home-persona-name').textContent = `${state.persona} Mode`;
+  document.getElementById('home-persona-icon').textContent = state.personaIcon;
+  document.getElementById('meta-class').textContent = `Class ${state.class}`;
+  document.getElementById('meta-target').textContent = state.target.split(',')[0] || 'JEE Advanced';
+  document.getElementById('meta-year').textContent = state.year;
+  document.getElementById('home-class-tag').textContent = `${state.class}+`;
+  document.getElementById('home-target-tag').textContent = (state.target.split(',')[0] || 'JEE Adv.').replace('JEE Advanced', 'JEE Adv.').replace('JEE Main', 'JEE Main');
+  
+  document.getElementById('stat-overall').textContent = state.score;
+  document.getElementById('stat-bar-overall').style.width = `${state.score}%`;
+  document.getElementById('stat-knowledge').textContent = state.knowledgeScore;
+  document.getElementById('stat-bar-knowledge').style.width = `${state.knowledgeScore}%`;
+  document.getElementById('stat-speed').textContent = state.speedScore;
+  document.getElementById('stat-bar-speed').style.width = `${state.speedScore}%`;
+  document.getElementById('stat-style').textContent = state.learningStyle;
+  
+  // Subject levels based on answers
+  const physRight = state.answers['q1'] === 1 && state.answers['q4'] === 3;
+  const mathRight = state.answers['q2'] === 2 && state.answers['q7'] === 1;
+  const chemRight = state.answers['q3'] === 0;
+  
+  const setLevel = (id, right) => {
+    const el = document.getElementById(id);
+    if (right) { el.textContent = 'Strong'; el.className = 'subject-level level-strong'; }
+    else if (state.score >= 50) { el.textContent = 'Good'; el.className = 'subject-level level-good'; }
+    else { el.textContent = 'Building'; el.className = 'subject-level level-building'; }
+  };
+  setLevel('phys-level', physRight);
+  setLevel('math-level', mathRight);
+  setLevel('chem-level', chemRight);
+  
+  // Insights
+  document.getElementById('insight-1-title').textContent = state.persona === 'Sprinter' ? 'Fast absorber — skip the basics' :
+    state.persona === 'Builder' ? 'Balanced learner — examples first' :
+    state.persona === 'Architect' ? 'Deep thinker — first principles' : 'Step-by-step — build solid ground';
+  document.getElementById('insight-1-sub').textContent = state.personaDesc;
+  
+  const weakSubject = !chemRight ? 'Chemistry' : !mathRight ? 'Maths' : 'Physics';
+  document.getElementById('insight-2-title').textContent = `Focus area: ${weakSubject}`;
+  document.getElementById('insight-2-sub').textContent = `Your answers suggest ${weakSubject} needs extra attention. Allie will reinforce key concepts here.`;
+}
+
+// ══════════════════════════════════════════
+// DOUBTS / MODES
+// ══════════════════════════════════════════
+function showModesModal() {
+  state.modalSlide = 0;
+  document.getElementById('modal-score').textContent = state.score;
+  document.getElementById('modal-mode-icon').textContent = state.personaIcon;
+  document.getElementById('modal-mode-name').textContent = `${state.persona} Mode`;
+  document.getElementById('modal-mode-desc').textContent = MODES[state.suggestedMode].desc;
+  document.getElementById('modal-style-chip').textContent = `${state.learningStyle} learner`;
+  updateModalDots();
+  document.getElementById('modes-modal').classList.remove('hidden');
+}
+
+function nextModalSlide() {
+  state.modalSlide = 1;
+  document.getElementById('modal-slides-container').style.transform = 'translateX(-100%)';
+  updateModalDots();
+}
+
+function prevModalSlide() {
+  state.modalSlide = 0;
+  document.getElementById('modal-slides-container').style.transform = 'translateX(0)';
+  updateModalDots();
+}
+
+function updateModalDots() {
+  document.getElementById('dot-0').className = `slide-dot ${state.modalSlide === 0 ? 'active' : ''}`;
+  document.getElementById('dot-1').className = `slide-dot ${state.modalSlide === 1 ? 'active' : ''}`;
+}
+
+function closeModesModal() {
+  document.getElementById('modes-modal').classList.add('hidden');
+  updateModeUI();
+}
+
+function selectMode(modeKey, btn) {
+  // show mode select modal instead of direct switch
+  state.pendingMode = modeKey;
+  showModeSelectModal();
+}
+
+function showModeSelectModal() {
+  const listEl = document.getElementById('mode-options-list');
+  listEl.innerHTML = Object.entries(MODES).map(([key, m]) => `
+    <div class="mode-select-option ${state.currentMode === key ? 'selected' : ''}" onclick="pendingSelectMode('${key}', this)">
+      <div class="mode-select-icon" style="background:${m.color}">${m.icon}</div>
+      <div class="mode-select-info">
+        <div class="mode-select-name">${m.name}</div>
+        <div class="mode-select-desc">${m.desc.substring(0, 60)}...</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+        ${key === state.suggestedMode ? '<span class="mode-suggested-badge">Suggested</span>' : ''}
+        <div class="mode-check">
+          ${state.currentMode === key ? '<svg width="12" height="12" fill="white" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/><path stroke="white" stroke-width="3" stroke-linecap="round" fill="none" d="M5 12l4 4L19 7"/></svg>' : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+  state.pendingMode = state.currentMode;
+  document.getElementById('mode-select-modal').classList.remove('hidden');
+}
+
+function pendingSelectMode(key, el) {
+  state.pendingMode = key;
+  document.querySelectorAll('.mode-select-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('.mode-check').innerHTML = '<svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path stroke="white" stroke-width="3" stroke-linecap="round" fill="none" d="M5 12l4 4L19 7"/></svg>';
+}
+
+function confirmModeSwitch() {
+  state.currentMode = state.pendingMode;
+  document.getElementById('mode-select-modal').classList.add('hidden');
+  updateModeUI();
+  
+  // Add a system message about mode switch
+  if (state.chatMessages.length > 0) {
+    addSystemMsg(`Switched to ${MODES[state.currentMode].name} mode ${MODES[state.currentMode].icon}`);
+  }
+}
+
+function updateModeUI() {
+  Object.keys(MODES).forEach(key => {
+    const btn = document.getElementById(`mode-btn-${key}`);
+    btn.classList.remove('active');
+    if (key === state.currentMode) btn.classList.add('active');
+    
+    const dot = document.getElementById(`suggested-dot-${key}`);
+    dot.style.display = key === state.suggestedMode ? 'block' : 'none';
+  });
+}
+
+// ══════════════════════════════════════════
+// CHAT
+// ══════════════════════════════════════════
+function handleChatKey(e) {
+  if (e.key === 'Enter') sendMessage();
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input-field');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  input.value = '';
+  
+  // Hide allie hero when chat starts
+  if (state.chatMessages.length === 0) {
+    const allieCenter = document.getElementById('allie-center');
+    allieCenter.style.transition = 'all 0.3s';
+    allieCenter.style.maxHeight = '0';
+    allieCenter.style.opacity = '0';
+    allieCenter.style.overflow = 'hidden';
+    allieCenter.style.padding = '0';
+    allieCenter.style.margin = '0';
+  }
+  
+  state.chatMessages.push({ role: 'user', text });
+  addChatBubble('user', text);
+  
+  // Show typing
+  const typingId = showTyping();
+  
+  // Simulate AI response
+  setTimeout(() => {
+    removeTyping(typingId);
+    const response = getMockResponse(text, state.currentMode);
+    state.chatMessages.push({ role: 'ai', text: response });
+    addChatBubble('ai', response);
+  }, 1500 + Math.random() * 800);
+}
+
+function addChatBubble(role, text) {
+  const chatArea = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = `chat-bubble ${role}`;
+  
+  if (role === 'ai') {
+    div.innerHTML = `
+      <div class="bubble-sender">Allie <span class="mode-tag">${MODES[state.currentMode].name}</span></div>
+      <div class="bubble-content">${text}</div>
+    `;
+  } else {
+    div.innerHTML = `<div class="bubble-content">${text}</div>`;
+  }
+  
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function addSystemMsg(text) {
+  const chatArea = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.style.cssText = 'text-align:center; font-size:11px; font-weight:700; color:var(--text-light); padding: 4px 0;';
+  div.textContent = `— ${text} —`;
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+let typingCounter = 0;
+function showTyping() {
+  const chatArea = document.getElementById('chat-area');
+  const id = `typing-${typingCounter++}`;
+  const div = document.createElement('div');
+  div.className = 'chat-bubble ai';
+  div.id = id;
+  div.innerHTML = `
+    <div class="bubble-sender">Allie</div>
+    <div class="typing-indicator">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>
+  `;
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+  return id;
+}
+
+function removeTyping(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function getMockResponse(question, mode) {
+  const responses = {
+    sprinter: [
+      `At the highest point: acceleration = g = 9.8 m/s² downward. Velocity = 0, but gravity always acts. Done.`,
+      `For series RLC at resonance: XL = XC, so net reactance = 0. Impedance = R (minimum). Power factor = 1.`,
+      `d/dx[sin(x)cos(x)] = cos(2x). Use double angle: sin(2x)/2, differentiate directly. That's it.`,
+      `Quick answer: F = –kx (Hooke's Law). Spring force opposes displacement. Constant k depends on spring stiffness. Apply directly.`
+    ],
+    builder: [
+      `Good question! Here's how to think about it:\n\n**Concept:** At the highest point, velocity becomes zero momentarily — but gravity doesn't care. It always pulls at 9.8 m/s² downward.\n\n**Try this:** If you drop a ball from rest vs. throw it up — at the exact moment before falling, what's different? (Answer: only velocity, not acceleration)\n\nNeed a practice problem to test this?`,
+      `Let me walk you through it step by step:\n\n**The idea:** sin(x)cos(x) = sin(2x)/2 — use this identity first.\n\n**Then differentiate:** d/dx[sin(2x)/2] = cos(2x)\n\n**Your turn:** Can you differentiate sin²(x) the same way? Try it and tell me what you get.`,
+      `Here's the framework:\n\n**Setup:** Resonance means XL = XC (inductive and capacitive reactance cancel).\n**Result:** Z = √(R² + 0²) = R\n**Implication:** Current is maximum, power factor = 1.\n\nWant me to give you a numerical example to practice?`
+    ],
+    architect: [
+      `Let's go back to basics.\n\n**Core idea:** What is acceleration? Rate of change of velocity. Not velocity itself.\n\nAt the highest point: velocity = 0, yes. But is velocity *changing*? Yes — from slightly upward to slightly downward. Therefore, acceleration exists.\n\n**What causes it?** Gravity. Earth's gravity doesn't turn off when the ball stops.\n\n**Therefore:** a = g = 9.8 m/s² downward, always, throughout the flight.\n\nDoes this first-principles explanation make sense before we move to numerical problems?`,
+      `Before solving, let me ask: what even *is* a derivative?\n\nIt's the instantaneous rate of change. For a product f(x)·g(x), we can't just multiply derivatives.\n\n**Product rule:** d/dx[f·g] = f'g + fg'\n\nSo: d/dx[sin(x)·cos(x)] = cos(x)·cos(x) + sin(x)·(–sin(x))\n= cos²(x) – sin²(x) = cos(2x)\n\nNow you see *why*, not just *what*. Should we verify using the identity route?`
+    ],
+    foundation: [
+      `No worries — let's take this completely from the start.\n\n**Step 1:** Do you know what acceleration means? It's how fast velocity is changing — not what the velocity actually is.\n\n**Step 2:** At the highest point, the ball stops moving (velocity = 0). But is something still pushing it?\n\n**Step 3:** Yes! Gravity is always there, pulling everything downward at 9.8 m/s².\n\n**So:** Even though velocity = 0, acceleration = 9.8 m/s² downward.\n\nCan you tell me in your own words why the ball doesn't have zero acceleration at the top?`,
+      `Great question! Let's build this up slowly.\n\n**First:** Do you remember what a derivative is? Think of it as the "slope" of a curve at any point.\n\n**Next:** We have two functions multiplied together: sin(x) and cos(x). For these, we use something called the Product Rule.\n\n**Product Rule says:** d/dx[f × g] = (f' × g) + (f × g')\n\n**Let's apply it together:**\n- f = sin(x), so f' = cos(x)\n- g = cos(x), so g' = –sin(x)\n\nCan you put these together in the formula? Take your time — I'll wait.`
+    ]
+  };
+  
+  const arr = responses[mode] || responses['builder'];
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// ══════════════════════════════════════════
+// NAV & SCREEN SWITCHING
+// ══════════════════════════════════════════
+function switchTab(tab) {
+  state.currentTab = tab;
+  
+  if (tab === 'home') {
+    showScreen('screen-home');
+  } else if (tab === 'doubts') {
+    showScreen('screen-doubts');
+    updateModeUI();
+    if (!state.hasSeenModesModal) {
+      state.hasSeenModesModal = true;
+      setTimeout(() => showModesModal(), 350);
+    }
+  }
+}
+
+function updateNavActive(screenId, activeIdx) {
+  const nav = document.querySelector(`#${screenId} .bottom-nav`);
+  if (!nav) return;
+  nav.querySelectorAll('.nav-item').forEach((item, i) => {
+    item.classList.toggle('active', i === activeIdx);
+  });
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// Close modals on overlay click
+document.getElementById('modes-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModesModal();
+});
+document.getElementById('mode-select-modal').addEventListener('click', function(e) {
+  if (e.target === this) document.getElementById('mode-select-modal').classList.add('hidden');
+});
+</script>
+</body>
+</html>
