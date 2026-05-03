@@ -82,19 +82,37 @@
   .screen.active { display: flex; }
 
   /* ─── STATUS BAR ─── */
-  .status-bar {
-    height: 44px;
-    padding: 10px 20px 0;
-    display: flex;
-    justify-content: space-between;
+  .status-bar { display: none; }
+
+  .brand-mark {
+    display: inline-flex;
     align-items: center;
-    font-size: 13px;
-    font-weight: 700;
-    flex-shrink: 0;
+    gap: 8px;
+    font-weight: 900;
+    letter-spacing: 0.4px;
   }
-  .status-bar.dark { color: var(--white); }
-  .status-bar.light { color: var(--text-primary); }
-  .status-icons { display: flex; align-items: center; gap: 4px; font-size: 11px; }
+  .brand-mark-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    background: var(--allen-blue);
+    color: var(--white);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    box-shadow: 0 8px 16px rgba(26,95,187,0.22);
+  }
+  .brand-mark-text {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .brand-mark-text .brand-accent { color: var(--allen-yellow); }
+  .brand-mark.light { color: var(--white); }
+  .brand-mark.dark { color: var(--allen-blue); }
 
   /* ─── BOTTOM NAV ─── */
   .bottom-nav {
@@ -157,7 +175,7 @@
     background: linear-gradient(160deg, #4A90D9 0%, #87BBEF 40%, var(--allen-blue-bg) 70%);
   }
   .info-header {
-    padding: 20px 24px 0;
+    padding: 28px 24px 0;
     flex-shrink: 0;
   }
   .allen-logo-text {
@@ -645,10 +663,17 @@
   /* ─── SCREEN 3: HOME ─── */
   #screen-home { background: var(--allen-blue-bg); }
   .home-header {
-    padding: 8px 20px 16px;
+    padding: 24px 20px 16px;
     background: white;
     flex-shrink: 0;
   }
+  .home-brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .home-brand-row .brand-mark-text { font-size: 18px; }
   .home-header-row {
     display: flex;
     justify-content: space-between;
@@ -863,14 +888,14 @@
 
   .doubts-header-gradient {
     background: linear-gradient(180deg, #5BAAF0 0%, #87BBEF 60%, rgba(135,187,239,0.3) 100%);
-    padding-bottom: 24px;
+    padding: 24px 0;
     flex-shrink: 0;
   }
   .doubts-header-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 20px 16px;
+    padding: 0 20px 16px;
   }
   .doubts-title { font-size: 20px; font-weight: 900; color: var(--text-primary); }
   .doubts-help-btn {
@@ -933,6 +958,13 @@
   .allie-sub:nth-child(2) { opacity: 0.7; }
   .allie-sub:nth-child(3) { opacity: 0.45; }
 
+  .chat-controls {
+    padding: 10px 16px 14px;
+    background: #EEF2F8;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(26,95,187,0.08);
+  }
+
   /* Mode switcher pill */
   .mode-switcher {
     background: white;
@@ -940,7 +972,7 @@
     padding: 5px;
     display: flex;
     gap: 2px;
-    margin: 0 20px 12px;
+    margin-top: 10px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.1);
     flex-shrink: 0;
   }
@@ -965,6 +997,22 @@
     color: white;
     box-shadow: 0 2px 8px rgba(26,95,187,0.3);
   }
+  #mode-btn-sprinter-bottom,
+  #mode-btn-advanced-bottom,
+  #mode-btn-intermediate-bottom,
+  #mode-btn-foundation-bottom {
+    font-size: 0;
+  }
+  #mode-btn-sprinter-bottom::after,
+  #mode-btn-advanced-bottom::after,
+  #mode-btn-intermediate-bottom::after,
+  #mode-btn-foundation-bottom::after {
+    font-size: 11px;
+  }
+  #mode-btn-sprinter-bottom::after { content: "Sprinter"; }
+  #mode-btn-advanced-bottom::after { content: "Advanced"; }
+  #mode-btn-intermediate-bottom::after { content: "Inter."; }
+  #mode-btn-foundation-bottom::after { content: "Found."; }
   .mode-pill .suggested-dot {
     position: absolute;
     top: 3px; right: 4px;
@@ -979,7 +1027,7 @@
   .chat-area {
     flex: 1;
     overflow-y: auto;
-    padding: 12px 16px;
+    padding: 12px 16px 4px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -1054,11 +1102,7 @@
   }
 
   /* Input bar */
-  .chat-input-wrap {
-    padding: 10px 16px 12px;
-    background: #EEF2F8;
-    flex-shrink: 0;
-  }
+  .chat-input-wrap { flex-shrink: 0; }
   .chat-input-bar {
     background: white;
     border-radius: 28px;
@@ -1152,6 +1196,10 @@
   .modal-slide {
     min-width: 100%;
     padding: 0 24px 24px;
+  }
+  .modal-slide-final {
+    display: flex;
+    flex-direction: column;
   }
 
   .modal-slide-dots {
@@ -1255,7 +1303,7 @@
   .modal-btn-row {
     display: flex;
     gap: 10px;
-    margin-top: 4px;
+    margin-top: 10px;
   }
   .btn-secondary {
     flex: 1;
@@ -1351,7 +1399,10 @@
     </div>
     
     <div class="info-header">
-      <div class="allen-logo-text"><span>ALLEN</span><span> ✦</span></div>
+      <div class="brand-mark light">
+        <span class="brand-mark-badge">A</span>
+        <span class="brand-mark-text"><span class="brand-name">ALLEN</span><span class="brand-accent">AI</span></span>
+      </div>
     </div>
     
     <div class="info-body">
@@ -1490,6 +1541,12 @@
     </div>
     
     <div class="home-header">
+      <div class="home-brand-row">
+        <div class="brand-mark dark">
+          <span class="brand-mark-badge">A</span>
+          <span class="brand-mark-text"><span class="brand-name">ALLEN</span><span class="brand-accent">AI</span></span>
+        </div>
+      </div>
       <div class="home-header-row">
         <div class="home-course-tags">
           <span class="course-tag" id="home-class-tag">12+</span>
@@ -1634,7 +1691,10 @@
         </div>
       </div>
       <div class="doubts-header-top">
-        <span class="doubts-title">Doubts</span>
+        <div class="brand-mark dark">
+          <span class="brand-mark-badge">A</span>
+          <span class="brand-mark-text"><span class="brand-name">ALLEN</span><span class="brand-accent">AI</span></span>
+        </div>
         <button class="doubts-help-btn">
           <svg width="18" height="18" fill="none" stroke="#6B7280" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
         </button>
@@ -1661,7 +1721,7 @@
     </div>
     
     <!-- Mode switcher -->
-    <div class="mode-switcher">
+    <div class="mode-switcher" style="display:none;">
       <button class="mode-pill active" id="mode-btn-sprinter" onclick="selectMode('sprinter', this)">
         ⚡ Sprinter
         <span class="suggested-dot" id="suggested-dot-sprinter"></span>
@@ -1685,18 +1745,35 @@
       <!-- messages injected here -->
     </div>
     
-    <!-- Input -->
-    <div class="chat-input-wrap">
-      <div class="chat-input-bar">
-        <button class="chat-camera-btn">
-          <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    <div class="chat-controls">
+      <!-- Input -->
+      <div class="chat-input-wrap">
+        <div class="chat-input-bar">
+          <button class="chat-camera-btn">
+            <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </button>
+          <input class="chat-input" id="chat-input-field" type="text" placeholder="Type here" onkeydown="handleChatKey(event)">
+          <button class="chat-mic-btn">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
+          </button>
+          <button class="chat-send-btn" onclick="sendMessage()">
+            <svg width="18" height="18" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="mode-switcher">
+        <button class="mode-pill active" id="mode-btn-sprinter-bottom" onclick="selectMode('sprinter', this)">
+          âš¡ Sprinter
         </button>
-        <input class="chat-input" id="chat-input-field" type="text" placeholder="Type here" onkeydown="handleChatKey(event)">
-        <button class="chat-mic-btn">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
+        <button class="mode-pill" id="mode-btn-advanced-bottom" onclick="selectMode('advanced', this)">
+          ðŸŽ¯ Advanced
         </button>
-        <button class="chat-send-btn" onclick="sendMessage()">
-          <svg width="18" height="18" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        <button class="mode-pill" id="mode-btn-intermediate-bottom" onclick="selectMode('intermediate', this)">
+          ðŸ“ Inter...
+        </button>
+        <button class="mode-pill" id="mode-btn-foundation-bottom" onclick="selectMode('foundation', this)">
+          ðŸŒ± Found...
         </button>
       </div>
     </div>
@@ -1769,7 +1846,7 @@
         </div>
         
         <!-- Slide 2: Your mode -->
-        <div class="modal-slide">
+        <div class="modal-slide modal-slide-final">
           <div class="your-mode-header">
             <h3>Your mode is ready 🎯</h3>
             <p>Based on your profile score, Allie recommends:</p>
@@ -1790,7 +1867,7 @@
           
           <div class="modal-btn-row">
             <button class="btn-secondary" onclick="prevModalSlide()">← Back</button>
-            <button class="btn-primary" style="flex:2;" onclick="closeModesModal()">Start asking doubts ✨</button>
+            <button class="btn-primary" style="flex:2;" onclick="closeModesModal()">Start learning</button>
           </div>
         </div>
       </div>
@@ -2243,7 +2320,7 @@ function showModesModal() {
 
 function nextModalSlide() {
   state.modalSlide = 1;
-  document.getElementById('modal-slides-container').style.transform = 'translateX(-100%)';
+  document.getElementById('modal-slides-container').style.transform = 'translateX(-50%)';
   updateModalDots();
 }
 
@@ -2310,12 +2387,15 @@ function confirmModeSwitch() {
 
 function updateModeUI() {
   Object.keys(MODES).forEach(key => {
-    const btn = document.getElementById(`mode-btn-${key}`);
-    btn.classList.remove('active');
-    if (key === state.currentMode) btn.classList.add('active');
-    
+    [document.getElementById(`mode-btn-${key}`), document.getElementById(`mode-btn-${key}-bottom`)]
+      .filter(Boolean)
+      .forEach(btn => {
+        btn.classList.remove('active');
+        if (key === state.currentMode) btn.classList.add('active');
+      });
+
     const dot = document.getElementById(`suggested-dot-${key}`);
-    dot.style.display = key === state.suggestedMode ? 'block' : 'none';
+    if (dot) dot.style.display = key === state.suggestedMode ? 'block' : 'none';
   });
 }
 
