@@ -4,7 +4,7 @@ function calculateScore() {
   let styleSum = 0;
   styleQIds.forEach(qid => {
     const ans = state.answers[qid];
-    styleSum += ans !== undefined - (4 - ans) : 2.5;
+    styleSum += ans !== undefined ? (4 - ans) : 2.5;
   });
   const avg = styleSum / 4;
 
@@ -48,13 +48,13 @@ function calculateScore() {
   const q6 = state.answers['q6'];
   const q7 = state.answers['q7'];
   state.subjects = {
-    physics:   q5 !== undefined - confMap[q5] : 'Good',
-    maths:     q6 !== undefined - confMap[q6] : 'Good',
-    chemistry: q7 !== undefined - confMap[q7] : 'Good'
+    physics:   q5 !== undefined ? confMap[q5] : 'Good',
+    maths:     q6 !== undefined ? confMap[q6] : 'Good',
+    chemistry: q7 !== undefined ? confMap[q7] : 'Good'
   };
 
   // Prep stage from Q8
   const prepMap = ['early', 'mid-11', 'mid-12', 'revision'];
   const q8 = state.answers['q8'];
-  state.prepStage = q8 !== undefined - prepMap[q8] : 'early';
+  state.prepStage = q8 !== undefined ? prepMap[q8] : 'early';
 }
