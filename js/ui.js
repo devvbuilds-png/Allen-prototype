@@ -324,20 +324,116 @@ function normalizeReplyText(text) {
   return String(text)
     .replace(/\$\$([\s\S]+?)\$\$/g, '\\[$1\\]')
     .replace(/(^|[^\$])\$([^\$\n]+?)\$(?!\$)/g, '$1\\($2\\)')
+    .replace(/^\[\s*(.+?)\s*\]$/gm, '\\[$1\\]')
+    .replace(/^\[\s*$/gm, '\\[')
+    .replace(/^\]\s*$/gm, '\\]')
     .split('—').join('-')
     .split('–').join('-');
 }
 
+function normalizeSuperscripts(text) {
+  const superscriptMap = {
+    '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
+    '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9',
+    '⁺': '+', '⁻': '-', '⁽': '(', '⁾': ')', 'ⁿ': 'n'
+  };
+
+  return String(text).replace(/([A-Za-z0-9)\]])([⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁽⁾ⁿ]+)/g, (_, base, superscript) => {
+    const normalized = superscript
+      .split('')
+      .map(char => superscriptMap[char] || char)
+      .join('');
+    return `${base}^{${normalized}}`;
+  });
+}
+
+function convertPlainMathToLatex(text) {
+  return normalizeSuperscripts(String(text))
+    .replace(/∫/g, '\\int ')
+    .replace(/√/g, '\\sqrt ')
+    .replace(/∞/g, '\\infty ')
+    .replace(/≈/g, '\\approx ')
+    .replace(/≠/g, '\\ne ')
+    .replace(/≤/g, '\\le ')
+    .replace(/≥/g, '\\ge ')
+    .replace(/→/g, '\\to ')
+    .replace(/×/g, '\\times ')
+    .replace(/÷/g, '\\div ')
+    .replace(/π/g, '\\pi ')
+    .replace(/θ/g, '\\theta ')
+    .replace(/α/g, '\\alpha ')
+    .replace(/β/g, '\\beta ')
+    .replace(/ω/g, '\\omega ');
+}
+
+function looksLikeStandaloneMath(line) {
+  const trimmed = line.trim();
+
+  if (!trimmed) return false;
+  if (trimmed.includes('\\(') || trimmed.includes('\\[')) return false;
+  if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || /^\d+\./.test(trimmed)) return false;
+  if (/^Answer\s*:/i.test(trimmed)) return false;
+
+  return (
+    /[=≈≠≤≥∫√]/.test(trimmed) ||
+    /[⁰¹²³⁴⁵⁶⁷⁸⁹]/.test(trimmed) ||
+    /[A-Za-z0-9)\]][\^\/][A-Za-z0-9({]/.test(trimmed) ||
+    /[A-Za-z0-9)\]]\s*[-+]\s*[A-Za-z0-9(\\]/.test(trimmed) ||
+    /\b(sin|cos|tan|cot|sec|cosec|log|ln|lim|theta|alpha|beta|omega)\b/i.test(trimmed)
+  );
+}
+
+function autoWrapMathLines(text) {
+  return String(text)
+    .split('\n')
+    .map(line => {
+      const trimmed = line.trim();
+
+      if (!trimmed) {
+        return line;
+      }
+
+      const answerMatch = trimmed.match(/^(Answer\s*:\s*)(.+)$/i);
+      if (answerMatch && looksLikeStandaloneMath(answerMatch[2])) {
+        return `${answerMatch[1]}\\(${convertPlainMathToLatex(answerMatch[2])}\\)`;
+      }
+
+      if (looksLikeStandaloneMath(trimmed)) {
+        return `\\[${convertPlainMathToLatex(trimmed)}\\]`;
+      }
+
+      return line;
+    })
+    .join('\n');
+}
+
+function protectMathSegments(text) {
+  const tokens = [];
+  const protectedText = String(text).replace(/\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)/g, match => {
+    const token = `@@MATH_${tokens.length}@@`;
+    tokens.push(match);
+    return token;
+  });
+
+  return { protectedText, tokens };
+}
+
+function restoreMathSegments(text, tokens) {
+  return tokens.reduce((output, math, index) => output.replaceAll(`@@MATH_${index}@@`, math), text);
+}
+
 function renderRichText(text) {
-  const normalizedText = normalizeReplyText(text);
+  const normalizedText = autoWrapMathLines(normalizeReplyText(text));
   const fallbackHtml = escapeHtml(normalizedText).replace(/\n/g, '<br>');
 
   if (!window.marked || !window.DOMPurify) {
     return fallbackHtml;
   }
 
-  const rawHtml = marked.parse(normalizedText || '');
-  return DOMPurify.sanitize(rawHtml);
+  const { protectedText, tokens } = protectMathSegments(normalizedText);
+  const rawHtml = marked.parse(protectedText || '');
+  const sanitizedHtml = DOMPurify.sanitize(rawHtml);
+  return restoreMathSegments(sanitizedHtml, tokens);
 }
 
 function typesetMath(container) {

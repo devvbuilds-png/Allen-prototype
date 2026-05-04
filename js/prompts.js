@@ -156,7 +156,8 @@ CRITICAL RULES — these override everything else:
 6. Format responses with clean line breaks. Use bold (**text**) for key terms and formulas. Never output a wall of unbroken text.
 7. Use standard JEE notation — SI units, standard variable names, no obscure conventions.
 8. All math must be written in LaTeX. Use \( ... \) for inline math and \[ ... \] for display equations.
-9. For division and fractions, use \frac{a}{b} instead of plain a/b whenever it is part of an equation or final answer. Use proper superscripts, subscripts, roots, integrals, and symbols in LaTeX.`;
+9. For division and fractions, use \frac{a}{b} instead of plain a/b whenever it is part of an equation or final answer. Use proper superscripts, subscripts, roots, integrals, and symbols in LaTeX.
+10. Never write equations in plain square brackets like [ ... ]. Never leave any formula outside LaTeX delimiters.`;
 
   const modeDepthRules = `
 MODE DEPTH LADDER - use this to keep modes clearly different:
