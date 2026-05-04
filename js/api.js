@@ -55,6 +55,11 @@ let activeRecognition = null;
 function hideAllieHeroIfNeeded() {
   if (state.chatMessages.length !== 0) return;
 
+  const doubtsScreen = document.getElementById('screen-doubts');
+  if (doubtsScreen) {
+    doubtsScreen.classList.add('chat-active');
+  }
+
   const allieCenter = document.getElementById('allie-center');
   if (!allieCenter) return;
 

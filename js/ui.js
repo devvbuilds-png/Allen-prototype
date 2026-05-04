@@ -12,6 +12,7 @@ function switchTab(tab) {
     showScreen('screen-home');
   } else if (tab === 'doubts') {
     showScreen('screen-doubts');
+    document.getElementById('screen-doubts').classList.toggle('chat-active', state.chatMessages.length > 0);
     updateModeUI();
     if (!state.hasSeenModesModal) {
       state.hasSeenModesModal = true;

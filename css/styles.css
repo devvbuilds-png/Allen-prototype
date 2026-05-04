@@ -990,6 +990,7 @@ html, body {
   background: linear-gradient(180deg, #5BAAF0 0%, #87BBEF 60%, rgba(135,187,239,0.3) 100%);
   padding: 24px 0;
   flex-shrink: 0;
+  transition: all 0.3s ease;
 }
 .doubts-header-top {
   display: flex;
@@ -1014,6 +1015,7 @@ html, body {
   align-items: center;
   gap: 12px;
   padding: 0 24px 4px;
+  transition: all 0.3s ease;
 }
 .allie-blob-lg {
   width: 90px;
@@ -1057,6 +1059,21 @@ html, body {
 .allie-sub { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
 .allie-sub:nth-child(2) { opacity: 0.7; }
 .allie-sub:nth-child(3) { opacity: 0.45; }
+
+#screen-doubts.chat-active .doubts-header-gradient {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+#screen-doubts.chat-active .allie-center {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
 
 .chat-controls {
   padding: 10px 16px 14px;
