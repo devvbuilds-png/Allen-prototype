@@ -1,7 +1,7 @@
 const QUESTIONS = [
   {
     id: 'q1', subject: 'Learning Style', type: 'style',
-    text: 'When Allie explains a doubt, what helps you most?',
+    text: 'When a doubt is explained to you, what helps you most?',
     options: [
       'Direct answer with the key formula and final logic',
       'Short concept first, then a clean example',
@@ -23,7 +23,7 @@ const QUESTIONS = [
   },
   {
     id: 'q3', subject: 'Learning Style', type: 'style',
-    text: 'When an answer does not click, Allie should:',
+    text: 'When an answer does not click, the explanation should:',
     options: [
       'Make it shorter and show only the key idea',
       'Use a different example',
