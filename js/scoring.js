@@ -1,60 +1,112 @@
 function calculateScore() {
-  // Mode from Q1–Q4: A=4, B=3, C=2, D=1
-  const styleQIds = ['q1', 'q2', 'q3', 'q4'];
-  let styleSum = 0;
+  const styleQIds = ['q1', 'q2', 'q3'];
+  const styleTotals = { sprinter: 0, advanced: 0, intermediate: 0, foundation: 0 };
+  let styleDepthSum = 0;
+
   styleQIds.forEach(qid => {
+    const q = QUESTIONS.find(item => item.id === qid);
     const ans = state.answers[qid];
-    styleSum += ans !== undefined ? (4 - ans) : 2.5;
+    const mode = ans !== undefined ? q.styleMap[ans] : 'intermediate';
+    styleTotals[mode] += 1;
+    styleDepthSum += ans !== undefined ? ans : 2;
   });
-  const avg = styleSum / 4;
 
-  // Display score: avg 4.0 = 100, avg 1.0 = 25
-  state.score = Math.round(((avg - 1) / 3) * 75 + 25);
-
-  // Assign persona based on average
-  if (avg >= 3.25) {
-    state.persona = 'Sprinter';
-    state.currentMode = 'sprinter';
-    state.suggestedMode = 'sprinter';
-    state.personaIcon = '⚡';
-    state.personaDesc = 'You pick things up fast. Allie will skip the fluff and give you direct, logic-first answers.';
-    state.learningStyle = 'Analytical';
-  } else if (avg >= 2.25) {
-    state.persona = 'Advanced';
-    state.currentMode = 'advanced';
-    state.suggestedMode = 'advanced';
-    state.personaIcon = '🎯';
-    state.personaDesc = 'Strong foundations. Allie will walk you through concepts with worked examples — sharp and efficient.';
-    state.learningStyle = 'Efficient';
-  } else if (avg >= 1.25) {
-    state.persona = 'Intermediate';
-    state.currentMode = 'intermediate';
-    state.suggestedMode = 'intermediate';
-    state.personaIcon = '📐';
-    state.personaDesc = 'Building strong. Allie will explain concepts clearly before solving, so nothing slips through.';
-    state.learningStyle = 'Methodical';
+  const styleOrder = ['sprinter', 'advanced', 'intermediate', 'foundation'];
+  const maxStyleVotes = Math.max(...Object.values(styleTotals));
+  let suggestedMode;
+  if (maxStyleVotes > 1) {
+    suggestedMode = styleOrder.find(mode => styleTotals[mode] === maxStyleVotes);
   } else {
-    state.persona = 'Foundation';
-    state.currentMode = 'foundation';
-    state.suggestedMode = 'foundation';
-    state.personaIcon = '🌱';
-    state.personaDesc = 'Step-by-step learner. Allie will never assume prior knowledge and build from the ground up.';
-    state.learningStyle = 'Thorough';
+    const avgStyleDepth = styleDepthSum / styleQIds.length;
+    suggestedMode =
+      avgStyleDepth <= 0.5 ? 'sprinter' :
+      avgStyleDepth <= 1.5 ? 'advanced' :
+      avgStyleDepth <= 2.5 ? 'intermediate' :
+      'foundation';
   }
 
-  // Subject confidence from Q5–Q7
-  const confMap = ['Strong', 'Good', 'Building', 'Weak'];
-  const q5 = state.answers['q5'];
-  const q6 = state.answers['q6'];
-  const q7 = state.answers['q7'];
-  state.subjects = {
-    physics:   q5 !== undefined ? confMap[q5] : 'Good',
-    maths:     q6 !== undefined ? confMap[q6] : 'Good',
-    chemistry: q7 !== undefined ? confMap[q7] : 'Good'
+  // If the basics check is weak, avoid pushing the student into a too-compressed mode.
+  const diagnosticQIds = ['q4', 'q5', 'q6'];
+  const correctDiagnostics = diagnosticQIds.filter(qid => {
+    const q = QUESTIONS.find(item => item.id === qid);
+    return state.answers[qid] === q.correct;
+  }).length;
+
+  if (correctDiagnostics <= 1 && suggestedMode === 'sprinter') suggestedMode = 'advanced';
+  if (correctDiagnostics === 0 && suggestedMode === 'advanced') suggestedMode = 'intermediate';
+
+  const modeProfiles = {
+    sprinter: {
+      persona: 'Sprinter',
+      icon: '⚡',
+      desc: 'You prefer fast, direct help. Allie will keep answers tight, formula-first, and focused on the result.',
+      learningStyle: 'Fast'
+    },
+    advanced: {
+      persona: 'Advanced',
+      icon: '🎯',
+      desc: 'You like efficient depth. Allie will start with the concept, then move into clean examples and application.',
+      learningStyle: 'Efficient'
+    },
+    intermediate: {
+      persona: 'Intermediate',
+      icon: '📐',
+      desc: 'You learn best when concepts are clear before solving. Allie will explain the idea, then build the steps.',
+      learningStyle: 'Methodical'
+    },
+    foundation: {
+      persona: 'Foundation',
+      icon: '🌱',
+      desc: 'You prefer everything built from the ground up. Allie will define terms, use simple steps, and avoid jumps.',
+      learningStyle: 'Thorough'
+    }
   };
 
-  // Prep stage from Q8
+  const profile = modeProfiles[suggestedMode];
+  state.persona = profile.persona;
+  state.currentMode = suggestedMode;
+  state.suggestedMode = suggestedMode;
+  state.personaIcon = profile.icon;
+  state.personaDesc = profile.desc;
+  state.learningStyle = profile.learningStyle;
+
+  const confidenceScore = { Strong: 3, Good: 2, Building: 1, Weak: 0 };
+  const confidenceMap = ['Strong', 'Good', 'Building', 'Weak'];
+  const subjectConfig = {
+    physics: { diagnostic: 'q4', confidence: 'q7' },
+    maths: { diagnostic: 'q5', confidence: 'q8' },
+    chemistry: { diagnostic: 'q6', confidence: 'q9' }
+  };
+
+  const subjectTotals = {};
+  state.subjects = {};
+
+  Object.entries(subjectConfig).forEach(([subject, config]) => {
+    const diagnosticQuestion = QUESTIONS.find(item => item.id === config.diagnostic);
+    const diagnosticCorrect = state.answers[config.diagnostic] === diagnosticQuestion.correct;
+    const confidence = confidenceMap[state.answers[config.confidence]] || 'Good';
+    const total = (diagnosticCorrect ? 2 : 0) + confidenceScore[confidence];
+
+    subjectTotals[subject] = total;
+    state.subjects[subject] =
+      total >= 5 ? 'Strong' :
+      total >= 4 ? 'Good' :
+      total >= 2 ? 'Building' :
+      'Weak';
+  });
+
+  const q10 = state.answers.q10;
   const prepMap = ['early', 'mid-11', 'mid-12', 'revision'];
-  const q8 = state.answers['q8'];
-  state.prepStage = q8 !== undefined ? prepMap[q8] : 'early';
+  state.prepStage = q10 !== undefined ? prepMap[q10] : 'early';
+
+  const subjectReadiness = Object.values(subjectTotals).reduce((sum, val) => sum + val, 0) / 15;
+  const styleIndependence = 1 - (styleDepthSum / (styleQIds.length * 3));
+  const prepReadiness = q10 !== undefined ? q10 / 3 : 0;
+
+  const rawScore = Math.round(
+    (subjectReadiness * 65) +
+    (styleIndependence * 20) +
+    (prepReadiness * 15)
+  );
+  state.score = Math.max(25, Math.min(100, rawScore));
 }

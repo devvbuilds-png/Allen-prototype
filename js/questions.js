@@ -1,89 +1,114 @@
 const QUESTIONS = [
   {
     id: 'q1', subject: 'Learning Style', type: 'style',
-    text: 'When you\'re solving a problem and get stuck, your first instinct is to:',
+    text: 'When Allie explains a doubt, what helps you most?',
     options: [
-      'Look at the full solution and understand the approach',
-      'Look at just the next step, then try again',
-      'Go back and re-read the concept',
-      'Ask someone to explain it from scratch'
+      'Direct answer with the key formula and final logic',
+      'Short concept first, then a clean example',
+      'Step-by-step explanation with why each step happens',
+      'Start from basics before using formulas'
     ],
     styleMap: ['sprinter', 'advanced', 'intermediate', 'foundation']
   },
   {
     id: 'q2', subject: 'Learning Style', type: 'style',
-    text: 'You just learned a new formula. To feel confident using it, you need to:',
+    text: 'If a new formula appears in class, you prefer to:',
     options: [
-      'See it once and start applying immediately',
-      'See 1–2 solved examples then I\'m good',
-      'Practice 3–4 questions before it clicks',
-      'Understand where the formula comes from first, then practice'
+      'Use it in questions immediately',
+      'See one example, then apply it',
+      'Understand the meaning of each term first',
+      'Understand where it comes from before applying it'
     ],
     styleMap: ['sprinter', 'advanced', 'intermediate', 'foundation']
   },
   {
     id: 'q3', subject: 'Learning Style', type: 'style',
-    text: 'How do you typically study a new chapter-',
+    text: 'When an answer does not click, Allie should:',
     options: [
-      'Jump straight to questions, refer to theory only when stuck',
-      'Quick theory read, then straight to questions',
-      'Full theory first, then solved examples, then questions',
-      'Detailed notes, multiple reads, then slowly move to practice'
-    ],
-    styleMap: ['sprinter', 'advanced', 'intermediate', 'foundation']
-  },
-  {
-    id: 'q4', subject: 'Learning Style', type: 'style',
-    text: 'When an explanation doesn\'t click the first time, you\'d want it to:',
-    options: [
-      'Be rephrased more concisely — I just need the key idea',
+      'Make it shorter and show only the key idea',
       'Use a different example',
-      'Be broken into smaller steps',
-      'Start over from the absolute basics'
+      'Break the same idea into smaller steps',
+      'Restart from the basic definition'
     ],
     styleMap: ['sprinter', 'advanced', 'intermediate', 'foundation']
   },
   {
-    id: 'q5', subject: 'Physics', type: 'confidence',
-    text: 'How confident are you in Physics right now-',
+    id: 'q4', subject: 'Physics', type: 'diagnostic',
+    text: 'Basic Physics check: why does the value of g decrease as height above Earth increases?',
     options: [
-      'Strong — can solve most JEE-level problems',
-      'Good — comfortable with most concepts, some gaps',
-      'Building — understand concepts but struggle with application',
-      'Weak — need to revisit fundamentals'
+      'Because distance from Earth\'s centre increases, so gravitational pull weakens',
+      'Because the object\'s mass decreases with height',
+      'Because Earth\'s mass decreases with height',
+      'Because air pressure directly controls gravity'
+    ],
+    correct: 0,
+    diagnosticSubject: 'physics'
+  },
+  {
+    id: 'q5', subject: 'Mathematics', type: 'diagnostic',
+    text: 'Basic Maths check: what does it mean if a function is one-one?',
+    options: [
+      'Different inputs always give different outputs',
+      'Every input gives output 1',
+      'The graph must be a straight line',
+      'The function is always increasing'
+    ],
+    correct: 0,
+    diagnosticSubject: 'maths'
+  },
+  {
+    id: 'q6', subject: 'Chemistry', type: 'diagnostic',
+    text: 'Basic Chemistry check: why does atomic radius generally decrease across a period?',
+    options: [
+      'Nuclear charge increases while electrons enter the same shell',
+      'The number of shells increases across a period',
+      'Atoms lose all valence electrons across a period',
+      'Neutrons pull electrons closer than protons do'
+    ],
+    correct: 0,
+    diagnosticSubject: 'chemistry'
+  },
+  {
+    id: 'q7', subject: 'Physics', type: 'confidence',
+    text: 'How confident are you in Physics right now?',
+    options: [
+      'Strong: I can handle most JEE-level questions',
+      'Good: concepts are mostly clear, with some gaps',
+      'Building: concepts make sense but application is hard',
+      'Weak: I need to rebuild fundamentals'
     ],
     confidenceMap: ['Strong', 'Good', 'Building', 'Weak']
   },
   {
-    id: 'q6', subject: 'Mathematics', type: 'confidence',
-    text: 'How confident are you in Mathematics right now-',
+    id: 'q8', subject: 'Mathematics', type: 'confidence',
+    text: 'How confident are you in Mathematics right now?',
     options: [
-      'Strong — can solve most JEE-level problems',
-      'Good — comfortable with most concepts, some gaps',
-      'Building — understand concepts but struggle with application',
-      'Weak — need to revisit fundamentals'
+      'Strong: I can handle most JEE-level questions',
+      'Good: concepts are mostly clear, with some gaps',
+      'Building: concepts make sense but application is hard',
+      'Weak: I need to rebuild fundamentals'
     ],
     confidenceMap: ['Strong', 'Good', 'Building', 'Weak']
   },
   {
-    id: 'q7', subject: 'Chemistry', type: 'confidence',
-    text: 'How confident are you in Chemistry right now-',
+    id: 'q9', subject: 'Chemistry', type: 'confidence',
+    text: 'How confident are you in Chemistry right now?',
     options: [
-      'Strong — can solve most JEE-level problems',
-      'Good — comfortable with most concepts, some gaps',
-      'Building — understand concepts but struggle with application',
-      'Weak — need to revisit fundamentals'
+      'Strong: I can handle most JEE-level questions',
+      'Good: concepts are mostly clear, with some gaps',
+      'Building: concepts make sense but application is hard',
+      'Weak: I need to rebuild fundamentals'
     ],
     confidenceMap: ['Strong', 'Good', 'Building', 'Weak']
   },
   {
-    id: 'q8', subject: 'Prep Stage', type: 'context',
-    text: 'Where are you in your JEE preparation-',
+    id: 'q10', subject: 'Prep Stage', type: 'context',
+    text: 'Where are you in your JEE preparation?',
     options: [
       'Just starting out',
       'Covered most of Class 11 syllabus',
-      'Covered Class 11 + 12, working on revision',
-      'Deep revision — solving mock tests'
+      'Covered Class 11 + 12, now revising',
+      'Mock test and deep revision phase'
     ],
     prepMap: ['early', 'mid-11', 'mid-12', 'revision']
   }
