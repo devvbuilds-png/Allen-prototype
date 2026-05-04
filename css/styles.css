@@ -101,6 +101,10 @@ html, body {
   gap: 4px;
   font-size: 20px;
   line-height: 1;
+  font-family: 'League Spartan', 'Nunito', sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
 }
 .brand-mark-text .brand-accent { color: var(--allen-yellow); }
 .brand-mark.light { color: var(--white); }

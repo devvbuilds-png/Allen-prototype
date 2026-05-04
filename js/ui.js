@@ -43,6 +43,15 @@ function renderQuestion() {
   const q = QUESTIONS[state.currentQuestion];
   const n = state.currentQuestion + 1;
   const total = QUESTIONS.length;
+  const subjectBadge = q.subject === 'Physics'
+    ? 'PHY'
+    : (q.subject === 'Maths' || q.subject === 'Mathematics')
+      ? 'MATH'
+      : q.subject === 'Chemistry'
+        ? 'CHEM'
+        : q.subject === 'Prep Stage'
+          ? 'PREP'
+          : 'MODE';
 
   document.getElementById('quiz-step-badge').textContent = `${n} of ${total}`;
   document.getElementById('quiz-progress-fill').style.width = `${(n / total) * 100}%`;
@@ -55,7 +64,7 @@ function renderQuestion() {
   container.innerHTML = `
     <div class="question-card slide-in-right">
       <div class="q-subject-tag">
-        ${q.subject === 'Physics' ? '??' : (q.subject === 'Maths' || q.subject === 'Mathematics') ? '?' : q.subject === 'Chemistry' ? '??' : q.subject === 'Prep Stage' ? '??' : '??'} ${q.subject}
+        ${subjectBadge} ${q.subject}
       </div>
       <div class="q-number">Question ${n}</div>
       <div class="q-text">${q.text}</div>
