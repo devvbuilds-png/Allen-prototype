@@ -46,12 +46,12 @@ const QUESTIONS = [
   },
   {
     id: 'q5', subject: 'Mathematics', type: 'diagnostic',
-    text: 'Basic Maths check: what does it mean if a function is one-one?',
+    text: 'Basic Maths check: for a quadratic equation, what does the discriminant b^2 - 4ac tell you?',
     options: [
-      'Different inputs always give different outputs',
-      'Every input gives output 1',
-      'The graph must be a straight line',
-      'The function is always increasing'
+      'The nature of the roots',
+      'The degree of the equation',
+      'The slope of the graph at x = 0',
+      'The value of the larger root only'
     ],
     correct: 0,
     diagnosticSubject: 'maths'
