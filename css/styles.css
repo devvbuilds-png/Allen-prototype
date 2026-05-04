@@ -146,6 +146,26 @@ html, body {
   justify-content: center;
 }
 .nav-icon svg { width: 22px; height: 22px; }
+.doubts-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  border: 1.5px solid #D1D5DB;
+  color: #8A94A6;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+}
+.doubts-badge.active {
+  border-color: var(--allen-blue);
+  background: #EAF3FF;
+  color: var(--allen-blue);
+  box-shadow: 0 4px 10px rgba(26,95,187,0.16);
+}
 
 /* Home nav icon - Allen A */
 .allen-a {

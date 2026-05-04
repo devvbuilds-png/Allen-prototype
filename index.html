@@ -300,9 +300,7 @@ window.MathJax = {
         <span class="nav-label">Home</span>
       </div>
       <div class="nav-item" onclick="switchTab('doubts')" id="home-nav-doubts">
-        <div class="nav-icon">
-          <svg fill="none" stroke="#9CA3AF" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
-        </div>
+        <div class="nav-icon"><div class="doubts-badge">?</div></div>
         <span class="nav-label">Doubts</span>
       </div>
     </div>
@@ -367,6 +365,21 @@ window.MathJax = {
     </div>
 
     <div class="chat-controls">
+      <div class="mode-switcher">
+        <button class="mode-pill active" id="mode-btn-sprinter-bottom" onclick="selectMode('sprinter', this)">
+          ⚡ Sprinter
+        </button>
+        <button class="mode-pill" id="mode-btn-advanced-bottom" onclick="selectMode('advanced', this)">
+          🎯 Advanced
+        </button>
+        <button class="mode-pill" id="mode-btn-intermediate-bottom" onclick="selectMode('intermediate', this)">
+          📐 Inter...
+        </button>
+        <button class="mode-pill" id="mode-btn-foundation-bottom" onclick="selectMode('foundation', this)">
+          🌱 Found...
+        </button>
+      </div>
+
       <!-- Input -->
       <div class="chat-input-wrap">
         <div class="chat-input-bar">
@@ -383,21 +396,6 @@ window.MathJax = {
         </div>
         <input id="chat-image-input" type="file" accept="image/*" capture="environment" style="display:none" onchange="handleImageSelection(event)">
       </div>
-
-      <div class="mode-switcher">
-        <button class="mode-pill active" id="mode-btn-sprinter-bottom" onclick="selectMode('sprinter', this)">
-          ⚡ Sprinter
-        </button>
-        <button class="mode-pill" id="mode-btn-advanced-bottom" onclick="selectMode('advanced', this)">
-          🎯 Advanced
-        </button>
-        <button class="mode-pill" id="mode-btn-intermediate-bottom" onclick="selectMode('intermediate', this)">
-          📐 Inter...
-        </button>
-        <button class="mode-pill" id="mode-btn-foundation-bottom" onclick="selectMode('foundation', this)">
-          🌱 Found...
-        </button>
-      </div>
     </div>
 
     <!-- Bottom Nav -->
@@ -407,9 +405,7 @@ window.MathJax = {
         <span class="nav-label">Home</span>
       </div>
       <div class="nav-item active" onclick="switchTab('doubts')" id="doubts-nav-doubts">
-        <div class="nav-icon">
-          <svg fill="none" stroke="var(--allen-blue)" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
-        </div>
+        <div class="nav-icon"><div class="doubts-badge active">?</div></div>
         <span class="nav-label" style="color:var(--allen-blue)">Doubts</span>
       </div>
     </div>
