@@ -466,6 +466,20 @@ function addChatBubble(role, text) {
   }
 }
 
+function addImageBubble(imageUrl, fileName) {
+  const chatArea = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'chat-bubble user';
+  div.innerHTML = `
+    <div class="bubble-content">
+      <img class="chat-image-preview" src="${imageUrl}" alt="${escapeHtml(fileName || 'Selected image')}">
+      <div class="chat-image-caption">${escapeHtml(fileName || 'Image selected')}</div>
+    </div>
+  `;
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
 function addSystemMsg(text) {
   const chatArea = document.getElementById('chat-area');
   const div = document.createElement('div');

@@ -191,21 +191,6 @@ window.MathJax = {
           <span class="course-tag" id="home-target-tag">JEE Adv.</span>
           <span class="course-tag green">FREE</span>
         </div>
-        <div class="header-icons">
-          <button class="header-icon-btn">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82 19.79 19.79 0 011 1.18C1 .08 1.88-.02 2.92.04A2 2 0 015 2a12.86 12.86 0 00.57 2.57 2 2 0 01-.45 2.11L4.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.57.57 2 2 0 011.96 2.03z"/></svg>
-          </button>
-          <button class="header-icon-btn">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-          </button>
-          <button class="header-icon-btn">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
-          </button>
-        </div>
-      </div>
-      <div class="change-course">
-        <span>Change course</span>
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </div>
     </div>
 
@@ -395,17 +380,18 @@ window.MathJax = {
       <!-- Input -->
       <div class="chat-input-wrap">
         <div class="chat-input-bar">
-          <button class="chat-camera-btn">
+          <button class="chat-camera-btn" type="button" onclick="openImagePicker()">
             <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
           </button>
           <input class="chat-input" id="chat-input-field" type="text" placeholder="Type here" onkeydown="handleChatKey(event)">
-          <button class="chat-mic-btn">
+          <button class="chat-mic-btn" id="chat-mic-btn" type="button" onclick="toggleVoiceInput()">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
           </button>
           <button class="chat-send-btn" onclick="sendMessage()">
             <svg width="18" height="18" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
           </button>
         </div>
+        <input id="chat-image-input" type="file" accept="image/*" capture="environment" style="display:none" onchange="handleImageSelection(event)">
       </div>
 
       <div class="mode-switcher">
