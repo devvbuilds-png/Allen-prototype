@@ -184,7 +184,12 @@ function updateHomeWithProfile() {
   setLevel('chem-level', state.subjects.chemistry);
 
   // Insights
-  const insightTitles = { Sprinter: 'Fast absorber — skip the basics', Advanced: 'Balanced learner — examples first', Intermediate: 'Methodical thinker — concepts first', Foundation: 'Step-by-step — build solid ground' };
+  const insightTitles = {
+    Sprinter: 'Fast absorber: skip the basics',
+    Advanced: 'Balanced learner: examples first',
+    Intermediate: 'Methodical thinker: concepts first',
+    Foundation: 'Step by step: build solid ground'
+  };
   document.getElementById('insight-1-title').textContent = insightTitles[state.persona] || insightTitles.Foundation;
   document.getElementById('insight-1-sub').textContent = state.personaDesc;
 

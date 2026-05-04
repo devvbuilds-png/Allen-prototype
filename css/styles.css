@@ -670,7 +670,7 @@ html, body {
 /* ─── SCREEN 3: HOME ─── */
 #screen-home { background: var(--allen-blue-bg); }
 .home-header {
-  padding: 24px 20px 16px;
+  padding: 18px 18px 12px;
   background: white;
   flex-shrink: 0;
 }
@@ -684,9 +684,16 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  gap: 10px;
+  margin-bottom: 6px;
 }
-.home-course-tags { display: flex; gap: 6px; align-items: center; }
+.home-course-tags {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+}
 .course-tag {
   padding: 3px 10px;
   border-radius: 6px;
@@ -697,9 +704,13 @@ html, body {
   border: 1px solid #C7DCFF;
 }
 .course-tag.green { background: #E8FFF5; color: var(--allen-green); border-color: #A8EDCF; }
-.header-icons { display: flex; gap: 8px; }
+.header-icons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
 .header-icon-btn {
-  width: 36px; height: 36px;
+  width: 34px; height: 34px;
   background: #F3F4F6;
   border-radius: 50%;
   border: none;
@@ -720,17 +731,16 @@ html, body {
 .home-body {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 14px 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding-bottom: 20px;
+  gap: 12px;
 }
 
 .profile-hero-card {
   background: linear-gradient(135deg, #1A5FBB 0%, #2196F3 100%);
   border-radius: var(--card-radius);
-  padding: 20px;
+  padding: 18px;
   color: white;
   position: relative;
   overflow: hidden;
@@ -758,16 +768,12 @@ html, body {
   margin-bottom: 2px;
 }
 .profile-name {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 900;
-  margin-bottom: 12px;
+  margin-bottom: 0;
+  line-height: 1;
 }
-.profile-meta {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
+.profile-meta { display: none; }
 .profile-meta-chip {
   background: rgba(255,255,255,0.2);
   border-radius: 8px;
@@ -775,14 +781,7 @@ html, body {
   font-size: 12px;
   font-weight: 700;
 }
-.profile-persona-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 12px;
-  padding: 10px 14px;
-}
+.profile-persona-row { display: none; }
 .profile-persona-icon { font-size: 22px; }
 .profile-persona-info {}
 .profile-persona-label { font-size: 10px; opacity: 0.8; font-weight: 600; }
@@ -792,7 +791,7 @@ html, body {
   font-size: 15px;
   font-weight: 800;
   color: var(--text-primary);
-  margin-bottom: 2px;
+  margin: 2px 0 0;
 }
 
 .stats-grid {
@@ -803,8 +802,9 @@ html, body {
 .stat-card {
   background: white;
   border-radius: var(--card-radius);
-  padding: 16px;
+  padding: 16px 14px;
   box-shadow: var(--card-shadow);
+  min-width: 0;
 }
 .stat-value {
   font-size: 28px;
@@ -817,6 +817,17 @@ html, body {
   font-weight: 600;
   color: var(--text-secondary);
   margin-top: 4px;
+}
+.learning-style-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.stat-style-value {
+  color: #8B5CF6;
+  font-size: 20px;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 .stat-bar {
   height: 4px;
@@ -832,31 +843,33 @@ html, body {
 }
 
 .subject-cards-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
+  overflow: visible;
+  padding-bottom: 0;
 }
 .subject-card {
-  min-width: 110px;
+  min-width: 0;
   background: white;
   border-radius: var(--card-radius);
-  padding: 14px;
+  padding: 12px 8px;
   box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 4px;
-  flex-shrink: 0;
 }
 .subject-icon { font-size: 20px; margin-bottom: 4px; }
 .subject-name { font-size: 12px; font-weight: 800; color: var(--text-primary); }
 .subject-level {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  padding: 2px 8px;
+  padding: 3px 7px;
   border-radius: 6px;
   display: inline-block;
+  white-space: nowrap;
 }
 .level-strong { background: #E8FFF5; color: var(--allen-green); }
 .level-good { background: #EEF4FF; color: var(--allen-blue); }
