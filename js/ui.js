@@ -102,31 +102,36 @@ function showScore() {
     level === 'Building' ? '#B45309' : '#EF4444';
 
   scoreEl.innerHTML = `
-    <div style="text-align:center; margin-bottom:4px;">
-      <div style="font-size:20px; font-weight:900; color:var(--text-primary); margin-bottom:4px;">Profile built! 🎉</div>
-      <div style="font-size:13px; color:var(--text-secondary); font-weight:500;">Here's what we learned about you</div>
-    </div>
-
-    <div class="score-circle-wrap">
-      <div class="score-circle-bg">
-        <div class="score-number">${state.score}</div>
-        <div class="score-label">/ 100</div>
+    <div class="score-screen-top">
+      <div class="score-heading">
+        <div class="score-heading-title">Profile built!</div>
+        <div class="score-heading-sub">Your mode is ready to go.</div>
       </div>
-      <svg style="position:absolute;inset:-4px;width:148px;height:148px;transform:rotate(-90deg);" viewBox="0 0 148 148">
-        <circle cx="74" cy="74" r="70" fill="none" stroke="#E5E7EB" stroke-width="6"/>
-        <circle cx="74" cy="74" r="70" fill="none" stroke="var(--allen-blue)" stroke-width="6"
-          stroke-dasharray="${Math.round(2 * Math.PI * 70)}"
-          stroke-dashoffset="${Math.round(2 * Math.PI * 70 * (1 - state.score / 100))}"
-          stroke-linecap="round" style="transition: stroke-dashoffset 1.2s ease-out;"/>
-      </svg>
+
+      <div class="score-circle-wrap score-circle-wrap-compact">
+        <div class="score-circle-bg score-circle-bg-compact">
+          <div class="score-number">${state.score}</div>
+          <div class="score-label">/ 100</div>
+        </div>
+        <svg style="position:absolute;inset:-4px;width:124px;height:124px;transform:rotate(-90deg);" viewBox="0 0 124 124">
+          <circle cx="62" cy="62" r="58" fill="none" stroke="#E5E7EB" stroke-width="6"/>
+          <circle cx="62" cy="62" r="58" fill="none" stroke="var(--allen-blue)" stroke-width="6"
+            stroke-dasharray="${Math.round(2 * Math.PI * 58)}"
+            stroke-dashoffset="${Math.round(2 * Math.PI * 58 * (1 - state.score / 100))}"
+            stroke-linecap="round" style="transition: stroke-dashoffset 1.2s ease-out;"/>
+        </svg>
+      </div>
     </div>
 
-    <div class="persona-card">
+    <div class="persona-card persona-card-compact">
       <div class="persona-badge">${state.personaIcon} ${state.persona} Mode</div>
       <div class="persona-desc">${state.personaDesc}</div>
+      <button class="btn-primary score-enter-btn" onclick="enterApp()">
+        Enter ALLEN →
+      </button>
     </div>
 
-    <div class="score-breakdown" style="width:100%">
+    <div class="score-breakdown score-breakdown-compact" style="width:100%">
       <div class="breakdown-title">Score Breakdown</div>
       <div class="breakdown-row">
         <span class="breakdown-left">Overall Score</span>
@@ -149,11 +154,6 @@ function showScore() {
         <span class="breakdown-right" style="color:var(--allen-blue)">${state.persona} ${state.personaIcon}</span>
       </div>
     </div>
-
-    <button class="btn-primary" style="width:100%;" onclick="enterApp()">
-      Enter ALLEN →
-    </button>
-    <div style="height:20px;"></div>
   `;
 }
 
